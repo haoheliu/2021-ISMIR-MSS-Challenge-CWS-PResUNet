@@ -1,0 +1,6 @@
+__pycache__
+*.wav
+*.th
+cache_model
+.DS_Store
+.idea

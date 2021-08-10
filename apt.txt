@@ -1,0 +1,7 @@
+build-essential
+git
+ffmpeg
+libsndfile1
+sox
+libsox-dev
+libsox-fmt-all
