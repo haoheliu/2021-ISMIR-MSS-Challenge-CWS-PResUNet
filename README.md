@@ -37,7 +37,7 @@ Finally you can run the following demo. If it's the first time you run this prog
 # <input-wav-file-path> is the .wav file to be separated
 # <output-path-dir> is the folder to store the separation results 
 # python3 main.py -i <input-wav-file-path> -o <output-path-dir>
-python3 main.py -i data/test/sign/mixture.wav -o data/results/sign
+python3 main.py -i data/test/zeno_sign_stereo.wav -o data/results
 ```
 
 ## todo
