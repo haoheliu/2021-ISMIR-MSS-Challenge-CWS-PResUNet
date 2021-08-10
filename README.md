@@ -27,7 +27,8 @@ git clone https://github.com/haoheliu/CWS-ResUNet-MSS-Challenge-ISMIR-2021.git
 ```
 Install the required packages
 ```shell
-pip3 install -r requirement.txt
+cd CWS-ResUNet-MSS-Challenge-ISMIR-2021
+pip3 install -r requirements.txt
 ```
 You'd better have *wget* command installed so that to download pretrained models.
 
