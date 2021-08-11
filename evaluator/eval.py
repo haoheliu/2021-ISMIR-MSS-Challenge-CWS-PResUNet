@@ -51,7 +51,7 @@ def evaluate_file(target, est, step_dir, fname):
     :param fname: file name to evaluate, not path
     :return:
     """
-    if(not os.path.exists(os.path.join(step_dir, fname + type + ".pkl"))):
+    if(not os.path.exists(os.path.join(step_dir, fname, type + ".pkl"))):
         target = read_wave(target, sample_rate=44100)
         est = read_wave(est, sample_rate=44100)
         est, target = est.astype(np.float32), target.astype(np.float32)
@@ -78,7 +78,8 @@ def evaluate_step(step_dir, files:list):
         try:
             evaluate_file(os.path.join(root,MUSDB_TEST,file,type+".wav"), os.path.join(step_dir, file, type+".wav"), step_dir, file)
         except Exception as e:
-            print(os.path.join(step_dir, file, type+".wav"),"not found, skip this file.")
+            pass
+            # print(os.path.join(step_dir, file, type+".wav"),"not found, skip this file.")
 
 
 def evaluate_step_multiprocess(step_dir):
@@ -110,7 +111,7 @@ def evaluate_step_multiprocess(step_dir):
 
 def aggregate_thread_results(step_dir):
     eval = []
-    for fname in glob.glob(os.path.join(step_dir,"*"+type+".pkl")):
+    for fname in glob.glob(os.path.join(step_dir,"*/"+type+".pkl")):
         bsseval = load_pickle(os.path.join(step_dir,fname))
         eval.append(bsseval)
     aggregate = aggregate_score(eval)
