@@ -28,6 +28,9 @@ git clone https://github.com/haoheliu/CWS-ResUNet-MSS-Challenge-ISMIR-2021.git
 Install the required packages
 ```shell
 cd CWS-ResUNet-MSS-Challenge-ISMIR-2021
+pip3 install --upgrade virtualenv==16.7.9
+virtualenv --no-site-packages env_mss
+source env_mss/bin/activate
 pip3 install -r requirements.txt
 ```
 You'd better have *wget* command installed so that to download pretrained models.
