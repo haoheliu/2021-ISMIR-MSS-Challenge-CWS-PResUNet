@@ -7,7 +7,7 @@ You can use this repo to separate 'bass', 'drums', 'vocals', and 'other' tracks 
 Also we provides our *vocals* and *other* models' training pipline. You can train your own model easily.
 
 As is shown in the following picture, in leaderboard A, we(ByteMSS) achieved the 2nd on Vocal score and 5th on average score.
-We will open-source our training pipline soon.
+For bass and drums separation, we directly use [the open-sourced demucs model](https://github.com/facebookresearch/demucs). It's trained with only MUSDB18HQ data, thus is qualified for LeaderBoard A.
 
 ![ranking](pics/ranks.png)
 
@@ -20,8 +20,6 @@ We will open-source our training pipline soon.
 [comment]: <> (3. Separate vocal track first, substract it from the mixture, and use the remaining part to separate other stems.)
 
 [comment]: <> (4. Since our final bass and drums score is still low. We directly use the open-source demucs model as the final submission for these two tracks.)
-
-For bass and drums separation, we directly use [the open-sourced demucs model](https://github.com/facebookresearch/demucs). It's trained with only MUSDB18HQ data, thus is qualified for LeaderBoard A.
 
 ## 1. Usage
 ### 1.1 Prepare running environment
