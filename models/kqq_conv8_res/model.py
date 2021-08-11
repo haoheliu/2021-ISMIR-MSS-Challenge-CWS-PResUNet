@@ -330,8 +330,9 @@ class UNetResComplex_100Mb(pl.LightningModule):
         output = continuous_nnet.forward(mixture)  # [bs, samples, channels]
         loss = self.calc_loss(output, vocal)
         output = torch.transpose(output,2,1)
+        os.makedirs(os.path.join(self.val_result_save_dir_step, str(fname)),exist_ok=True)
         save_wave((tensor2numpy(output) * 2 ** 15).astype(np.short),
-                  fname=os.path.join(self.val_result_save_dir_step, str(fname) + self.target + ".wav"))
+                  fname=os.path.join(self.val_result_save_dir_step, str(fname), self.target + ".wav"))
         return {'val_loss':loss}
 
     def validation_epoch_end(self, outputs):

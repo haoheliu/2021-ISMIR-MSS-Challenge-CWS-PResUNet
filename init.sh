@@ -1,3 +1,6 @@
+echo "Installing SpeechMetrics"
+pip install git+https://github.com/aliutkus/speechmetrics#egg=speechmetrics[cpu]
+
 echo "Processing MUSDB18HQ dataset"
 
 if [ ! -d "data/musdb18hq" ]; then

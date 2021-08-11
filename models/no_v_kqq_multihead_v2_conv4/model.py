@@ -421,13 +421,13 @@ class UNetResComplex_100Mb(pl.LightningModule):
         est_bass = torch.transpose(est_bass,2,1)
         est_other = torch.transpose(est_other,2,1)
         est_drums = torch.transpose(est_drums,2,1)
-
+        os.makedirs(os.path.join(self.val_result_save_dir_step, str(fname)),exist_ok=True)
         save_wave((tensor2numpy(est_bass) * 2 ** 15).astype(np.short),
-                  fname=os.path.join(self.val_result_save_dir_step, str(fname) + "bass.wav"))
+                  fname=os.path.join(self.val_result_save_dir_step, str(fname), "bass.wav"))
         save_wave((tensor2numpy(est_drums) * 2 ** 15).astype(np.short),
-                  fname=os.path.join(self.val_result_save_dir_step, str(fname) + "drums.wav"))
+                  fname=os.path.join(self.val_result_save_dir_step, str(fname), "drums.wav"))
         save_wave((tensor2numpy(est_other) * 2 ** 15).astype(np.short),
-                  fname=os.path.join(self.val_result_save_dir_step, str(fname) + "other.wav"))
+                  fname=os.path.join(self.val_result_save_dir_step, str(fname), "other.wav"))
         return {'val_loss':loss}
 
     def validation_epoch_end(self, outputs):

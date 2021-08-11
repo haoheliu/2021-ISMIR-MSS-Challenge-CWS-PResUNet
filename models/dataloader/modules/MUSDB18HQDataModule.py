@@ -48,20 +48,20 @@ class MUSDB18HQDataModule(pl.LightningDataModule):
     def train_dataloader(self) -> DataLoader:
         if(self.distributed):
             sampler = DistributedSampler(self.train)
-            return DataLoader(self.train, sampler = sampler, batch_size=self.batchsize, num_workers=self.num_workers, pin_memory=True)
+            return DataLoader(self.train, sampler = sampler, batch_size=self.batchsize, num_workers=self.num_workers, pin_memory=False)
         else:
             return DataLoader(self.train, batch_size=self.batchsize, shuffle=True, num_workers=self.num_workers)
 
     def val_dataloader(self):
         if(self.distributed):
             sampler = DistributedSampler(self.val,shuffle=False)
-            return DataLoader(self.val, sampler = sampler, batch_size=1, pin_memory=True)
+            return DataLoader(self.val, sampler = sampler, batch_size=1, pin_memory=False)
         else:
             return DataLoader(self.val, batch_size=1, shuffle=False)
 
     def test_dataloader(self):
         if(self.distributed):
             sampler = DistributedSampler(self.test,shuffle=False)
-            return DataLoader(self.test, sampler = sampler, batch_size=1, pin_memory=True)
+            return DataLoader(self.test, sampler = sampler, batch_size=1, pin_memory=False)
         else:
             return DataLoader(self.test, batch_size=1, shuffle=False)

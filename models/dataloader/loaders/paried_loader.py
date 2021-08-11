@@ -54,9 +54,7 @@ class PairedFullLengthDataLoader(Dataset):
         d = self.pairs[item]
         for k in d.keys():
             data[k] = read_wave(d[k],self.sample_rate)
-            # assert self.sample_rate == get_sample_rate(d[k]), d[k]
-            name = os.path.splitext(os.path.split(d[k])[-1])[0]
-            data['fname'] = os.path.basename(os.path.dirname(d[k])) + "_" + name
+            data['fname'] = os.path.basename(os.path.dirname(d[k]))
         return data
 
     def __len__(self):

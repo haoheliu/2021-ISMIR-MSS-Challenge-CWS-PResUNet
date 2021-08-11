@@ -31,8 +31,6 @@ import torchaudio as ta
 from demucs import pretrained
 from demucs.utils import apply_model, load_model  # noqa
 
-from evaluator.music_demixing import MusicDemixingPredictor
-
 class DemucsPredictor():
     def prediction_setup(self):
         torch.hub.set_dir('./utils/demucs_checkpoints')

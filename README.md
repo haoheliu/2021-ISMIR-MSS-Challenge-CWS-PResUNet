@@ -73,6 +73,34 @@ To use the the *vocals* and the *other* model you trained by your own. You need 
 44 ...
 ```
 
+### 1.4 Model Evaluation
+
+- We calculate the *sdr*,*isr*, and *sar* with the [BSSEval v4](https://github.com/sigsep/sigsep-mus-eval)
+- We calculate the *sisdr* value with the [speechmetrics](https://github.com/aliutkus/speechmetrics).
+- We calculate another version (non-windowed) *sdr_ismir* using [the 2021 ISMIR MSS Challenge's implementation](https://github.com/AIcrowd/music-demixing-challenge-starter-kit/blob/master/evaluator/music_demixing.py#L75). 
+
+After training, you will get a validation folder inside your loging directory (*mss_challenge_log* by default).
+
+Pass the source type (bass, vocals, others or drums) and the validation results path (automatic generated after training in the logging folder) to eval.sh. 
+
+For example:
+
+```shell
+# source eval.sh <source-type> <your-validation-results-folder-after-training> 
+
+# evaluate vocal score
+source eval.sh vocals mss_challenge_log/2021-08-11-subband_four_resunet_for_vocals-vocals/version_0/validations
+# evaluate bass score
+source eval.sh bass mss_challenge_log/2021-08-11-subband_four_resunet_for_vocals-vocals/version_0/validations
+# evaluate drums score
+source eval.sh drums mss_challenge_log/2021-08-11-subband_four_resunet_for_vocals-vocals/version_0/validations
+# evaluate other score
+source eval.sh other mss_challenge_log/2021-08-11-subband_four_resunet_for_vocals-vocals/version_0/validations
+```
+
+The system will save the overall score and the score for each song in the result folder.
+
+For faster evalution, you can adjust the parameter *MAX_THREAD* insides the *evaluator/eval.py* to determine how many threads you gonna use. It's value should fit your computer resources. You can start with *MAX_THREAD=3* and then try 6, 10 or 16. 
 
 ## 2. todo
 
