@@ -70,7 +70,7 @@ source models/resunet_conv8_vocals/run.sh
 # The input of model is mixture, and its output are bass, other and drums waveforms. (bass and drums are only used during training) 
 # We calculate the losses for "bass","other", and "drums" these three sources together.
 # Result shows that joint training is beneficial for 'other' track.
-source source models/resunet_joint_training_other/run.sh
+source models/resunet_joint_training_other/run.sh
 ```
 Training logs will be presented in the *mss_challenge_log* folder by default. System will perform validations every two epoches.
 
