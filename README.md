@@ -92,7 +92,7 @@ It's conducted on the validation results generated during training.
 
 - We calculate the *sdr*,*isr*, and *sar* with the [BSSEval v4](https://github.com/sigsep/sigsep-mus-eval)
 - We calculate the *sisdr* value with the [speechmetrics](https://github.com/aliutkus/speechmetrics).
-- We calculate another version (non-windowed) *sdr_ismir* using [the 2021 ISMIR MSS Challenge's implementation](https://github.com/AIcrowd/music-demixing-challenge-starter-kit/blob/master/evaluator/music_demixing.py#L75). 
+- We calculate another version (non-windowed) of sdr, *sdr_ismir*, using [the 2021 ISMIR MSS Challenge's implementation](https://github.com/AIcrowd/music-demixing-challenge-starter-kit/blob/master/evaluator/music_demixing.py#L75). 
 
 Steps: 
 
