@@ -45,10 +45,17 @@ You can run the following demo. If it's the first time you run this program, it 
 # python3 main.py -i <input-wav-file-path> -o <output-path-dir>
 python3 main.py -i example/test/zeno_sign_stereo.wav -o example/results
 ```
+Each pretrained model in this repo take us approximately two days on 8 V100 GPUs to train.
 
 ### Train new models from scratch
-If you don't have 'musdb18q.zip' or 'musdb18hq' folder in the 'data' folder, we will automatically download the dataset for you.
-
+For the training data
+- If you havn't download musdb18hq, we will automatically download the dataset for you by running the following command.
+- If you have already download musdb18hq, you can put *musdb18hq.zip* or *musdb18hq* folder into the *data*
+folder and run *init.sh* to prepare this dataset.
+```shell
+source init.sh
+```
+Finally run either of these two commands to start training.
 ```shell
 # For track 'vocals'
 source models/kqq_conv8_res/run.sh
@@ -58,7 +65,7 @@ source source models/no_v_kqq_multihead_v2_conv4/run.sh
 
 ## todo
 
-- [ ] Open-source the ctraining pipline (before 2021-08-20)
+- [x] Open-source the training pipline (before 2021-08-20)
 - [ ] Write a report paper about my findings in this MSS Challenge (before 2021-08-31)
 
 ## Reference

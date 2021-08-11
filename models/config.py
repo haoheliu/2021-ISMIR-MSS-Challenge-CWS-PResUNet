@@ -3,7 +3,7 @@ import os.path as op
 
 class Config:
     ROOT = os.getcwd()
-    TRAIL_NAME = os.environ['TRAIL_NAME']
+    TRAIL_NAME = "mss_challenge"
 
     # DATA
     train_data = {

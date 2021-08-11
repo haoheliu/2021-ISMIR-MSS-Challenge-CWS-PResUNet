@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.getcwd())
 from models.config import Config
-from modules import *
+from models.kqq_conv8_res.modules import *
 
 import torch.utils
 import torch.utils.data
@@ -15,7 +15,6 @@ from torchlibrosa import STFT
 from utils.overlapadd import LambdaOverlapAdd
 
 from utils.file_io import *
-
 
 class L1(nn.Module):
     def __init__(self):
