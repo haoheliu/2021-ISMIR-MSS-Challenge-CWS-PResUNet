@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.getcwd())
 from models.config import Config
-from models.kqq_conv8_res.modules import *
+from models.resunet_conv8_vocals.modules import *
 
 import torch.utils
 import torch.utils.data

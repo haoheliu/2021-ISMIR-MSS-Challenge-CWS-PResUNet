@@ -1,7 +1,7 @@
 import sys
 sys.path.append("/Users/admin/Documents/projects/music-demixing-challenge-starter-kit")
 
-from models.no_v_kqq_multihead_v2_conv4.modules import *
+from models.resunet_joint_training_other.modules import *
 
 import torch.utils
 import torch.utils.data

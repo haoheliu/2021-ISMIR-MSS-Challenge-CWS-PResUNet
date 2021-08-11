@@ -5,8 +5,8 @@ import numpy as np
 import pytorch_lightning as pl
 import soundfile as sf
 import torch
-from models.kqq_conv8_res.model import UNetResComplex_100Mb as Conv8Res
-from models.no_v_kqq_multihead_v2_conv4.model import UNetResComplex_100Mb as NO_V_multihead_Conv4
+from models.resunet_conv8_vocals.model import UNetResComplex_100Mb as Conv8Res
+from models.resunet_joint_training_other.model import UNetResComplex_100Mb as NO_V_multihead_Conv4
 from demucs_predictor import DemucsPredictor
 from utils.overlapadd_singlethread_exclude_vocal import LambdaOverlapAdd
 
@@ -39,8 +39,8 @@ class SubbandResUNetPredictor():
         self.demucs.prediction_setup()
         print("Loading vocal model...")
 
-        v_model_path = "models/kqq_conv8_res/checkpoints/vocals/epoch=49-val_loss=0.0902_trimed.ckpt"
-        o_model_path = "models/no_v_kqq_multihead_v2_conv4/checkpoints_nov/other/epoch=33-val_loss=0.4293_trimed.ckpt"
+        v_model_path = "models/resunet_conv8_vocals/checkpoints/vocals/epoch=49-val_loss=0.0902_trimed.ckpt"
+        o_model_path = "models/resunet_joint_training_other/checkpoints_nov/other/epoch=33-val_loss=0.4293_trimed.ckpt"
 
         os.makedirs(os.path.dirname(v_model_path),exist_ok=True)
         os.makedirs(os.path.dirname(o_model_path),exist_ok=True)
