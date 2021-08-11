@@ -78,8 +78,7 @@ def evaluate_step(step_dir, files:list):
         try:
             evaluate_file(os.path.join(root,MUSDB_TEST,file,type+".wav"), os.path.join(step_dir, file, type+".wav"), step_dir, file)
         except Exception as e:
-            print(e)
-            print("error:" , file)
+            print(os.path.join(step_dir, file, type+".wav"),"not found, skip this file.")
 
 
 def evaluate_step_multiprocess(step_dir):
