@@ -1,4 +1,4 @@
-# Music Source Separation with Channel-wise Subband ResUnet (CWS-ResUNet)
+# Music Source Separation with Channel-wise Subband Phase Aware ResUnet (CWS-PResUNet)
 ## Introduction
 This repo contains the pretrained Music Source Separation models I submitted to the [2021 ISMIR MSS Challenge](https://www.aicrowd.com/challenges/music-demixing-challenge-ismir-2021).
 We only participate the Leaderboard A, so these models are only trained on MUSDB18HQ.
@@ -96,7 +96,7 @@ It's conducted on the validation results generated during training.
 
 Steps: 
 
-1. Locate the path to the validation result. After training, you will get a validation folder inside your loging directory (*mss_challenge_log* by default).
+1. Locate the path of the validation result. After training, you will get a validation folder inside your loging directory (*mss_challenge_log* by default).
 
 2. Determine which kind of source you wanna evaluate (bass, vocals, others or drums). Make sure its results present in the validation folder.
 
