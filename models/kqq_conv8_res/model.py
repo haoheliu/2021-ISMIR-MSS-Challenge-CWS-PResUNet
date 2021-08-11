@@ -340,15 +340,3 @@ class UNetResComplex_100Mb(pl.LightningModule):
         self.log("val_loss", avg_loss, on_step=False, on_epoch=True, logger=True, sync_dist=True)
 
 
-
-if __name__ == "__main__":
-    import time
-    wav = torch.randn((1,2,44100*1))
-    model = UNetResComplex_100Mb(channels=2)
-
-    start = time.time()
-    out = model(wav)['wav']
-    print(time.time()-start)
-    print(out.size())
-
-

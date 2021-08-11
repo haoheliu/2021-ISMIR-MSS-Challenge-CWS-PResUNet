@@ -25,4 +25,5 @@ diffq
 demucs
 soundfile
 typing
-
+pynvml
+GitPython

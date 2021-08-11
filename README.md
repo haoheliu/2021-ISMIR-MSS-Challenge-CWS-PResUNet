@@ -20,8 +20,8 @@ We will open-source our training pipline soon.
 
 For bass and drums separation, we directly use [the open-sourced demucs model](https://github.com/facebookresearch/demucs). It's trained with only MUSDB18HQ data, thus is qualified for LeaderBoard A.
 
-## Usage
-### Prepare running environment
+## 1. Usage
+### 1.1 Prepare running environment
 First you need to clone this repo:
 ```shell
 git clone https://github.com/haoheliu/CWS-ResUNet-MSS-Challenge-ISMIR-2021.git
@@ -36,8 +36,8 @@ pip3 install -r requirements.txt # install requirements
 ```
 You'd better have *wget* command installed so that to download pretrained models.
 
-### Use pretrained model
-You can run the following demo. If it's the first time you run this program, it will automatically download the pretrained models.
+### 1.2 Use pretrained model
+To use the pretrained model to conduct music source separation. You can run the following demo. If it's the first time you run this program, it will automatically download the pretrained models.
 
 ```shell
 # <input-wav-file-path> is the .wav file to be separated
@@ -47,7 +47,7 @@ python3 main.py -i example/test/zeno_sign_stereo.wav -o example/results
 ```
 Each pretrained model in this repo take us approximately two days on 8 V100 GPUs to train.
 
-### Train new models from scratch
+### 1.3 Train new models from scratch
 For the training data
 - If you havn't download musdb18hq, we will automatically download the dataset for you by running the following command.
 - If you have already download musdb18hq, you can put *musdb18hq.zip* or *musdb18hq* folder into the *data*
@@ -62,13 +62,24 @@ source models/kqq_conv8_res/run.sh
 # For track 'other'
 source source models/no_v_kqq_multihead_v2_conv4/run.sh
 ```
+Training logs will be presented in the *mss_challenge_log* folder. System will perform validations every two epoches.
 
-## todo
+To use the the *vocals* and the *other* model you trained by your own. You need to modify the following two variables in the *predictor.py* to the path of your models.
+
+```python3
+41 ...
+42  v_model_path = <path-to-your-vocals-model>
+43  o_model_path = <path-to-your-other-model>
+44 ...
+```
+
+
+## 2. todo
 
 - [x] Open-source the training pipline (before 2021-08-20)
 - [ ] Write a report paper about my findings in this MSS Challenge (before 2021-08-31)
 
-## Reference
+## 3. Reference
 
 If you find our code useful for your research, please consider citing:
 
