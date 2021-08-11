@@ -38,8 +38,10 @@ class SubbandResUNetPredictor():
 
         self.demucs.prediction_setup()
         print("Loading vocal model...")
+
         v_model_path = "models/kqq_conv8_res/checkpoints/vocals/epoch=49-val_loss=0.0902_trimed.ckpt"
         o_model_path = "models/no_v_kqq_multihead_v2_conv4/checkpoints_nov/other/epoch=33-val_loss=0.4293_trimed.ckpt"
+
         os.makedirs(os.path.dirname(v_model_path),exist_ok=True)
         os.makedirs(os.path.dirname(o_model_path),exist_ok=True)
         if (not os.path.exists(v_model_path)):

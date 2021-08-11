@@ -9,6 +9,7 @@ def find_and_build(root,path):
     return path
 
 def merge(li:list,target:str):
+    if(os.path.exists(target)): return
     res = None
     for i in li:
         if(res is None):

@@ -27,7 +27,6 @@ if __name__ == "__main__":
     parser = pl.Trainer.add_argparse_args(parser)
 
     parser.add_argument('--name', type=str, default="four subband resunet model")
-    parser.add_argument('--type', type=str, default="")
     parser.add_argument('--batchsize', type=int, default=16)
     parser.add_argument('--subband', type=int, default=4)
     parser.add_argument('--gamma', type=float, default=0.9)
@@ -80,7 +79,7 @@ if __name__ == "__main__":
     reduce_lr_period = args.reduce_lr_period # hours of example
     sample_rate = 44100
 
-    model = MODEL(channels=2, target=type, nsrc=1, subband = args.subband,
+    model = MODEL(channels=2, type="all", nsrc=1, subband = args.subband,
                   # training
                   lr=lr,
                   gamma=gamma,
@@ -93,7 +92,7 @@ if __name__ == "__main__":
 
     # Data Module1
     dm = MUSDB18HQDataModule(
-        distributed=distributed, train_loader="INDIVIDUAL_LOADER",train_type=args.type, overlap_num=1,
+        distributed=distributed, train_loader="ALL_LOADER",train_type=args.type, overlap_num=1,
         train_data=Config.train_data, test_data=Config.test_data,
         batchsize=batchsize, frame_length=frame_length, num_workers=args.workers, sample_rate=sample_rate,
     )

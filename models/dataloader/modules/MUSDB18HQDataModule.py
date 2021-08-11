@@ -1,6 +1,7 @@
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 from models.dataloader.loaders.individual_loader import INDIVIDUAL_LOADER
+from models.dataloader.loaders.all_loader import ALL_LOADER
 from models.dataloader.loaders.paried_loader import PairedFullLengthDataLoader
 from torch.utils.data.distributed import DistributedSampler
 
