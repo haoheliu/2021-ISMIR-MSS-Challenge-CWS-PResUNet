@@ -38,9 +38,8 @@ if __name__ == "__main__":
     parser.add_argument('--reload', type=str, default="")
 
     args = parser.parse_args()
-    type = args.type
     current = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-    name = current + "-" + args.name + "-" + args.type
+    name = current + "-" + args.name
     if (len(args.reload) != 0):
         name += "_reload_" + (args.reload).replace("/", ".")
 
@@ -58,13 +57,7 @@ if __name__ == "__main__":
     print("DISTRIBUTED", distributed)
     # profiler = AdvancedProfiler(output_filename='_zz.txt', line_count_restriction=1.0)
     ####################################################################################################
-    if(args.type == "vocals"): lr=0.001
-    elif(args.type == "other"): lr=0.0005
-    elif(args.type == "bass"): lr=0.0003
-    elif(args.type == "drums"): lr=0.0003
-    else:
-        lr = None
-
+    lr=0.006
     check_val_every_n_epoch = 2
     gamma=args.gamma
     batchsize = args.batchsize
@@ -79,7 +72,7 @@ if __name__ == "__main__":
     reduce_lr_period = args.reduce_lr_period # hours of example
     sample_rate = 44100
 
-    model = MODEL(channels=2, type="all", nsrc=1, subband = args.subband,
+    model = MODEL(channels=2, stem="all", nsrc=1, subband = args.subband,
                   # training
                   lr=lr,
                   gamma=gamma,
@@ -92,7 +85,7 @@ if __name__ == "__main__":
 
     # Data Module1
     dm = MUSDB18HQDataModule(
-        distributed=distributed, train_loader="ALL_LOADER",train_type=args.type, overlap_num=1,
+        distributed=distributed, train_loader="ALL_LOADER",train_type="all", overlap_num=1,
         train_data=Config.train_data, test_data=Config.test_data,
         batchsize=batchsize, frame_length=frame_length, num_workers=args.workers, sample_rate=sample_rate,
     )

@@ -13,6 +13,8 @@ import pytorch_lightning as pl
 from torchlibrosa import STFT
 import time
 from models.config import Config
+from utils.overlapadd import LambdaOverlapAdd
+
 class L1(nn.Module):
     def __init__(self):
         super(L1, self).__init__()
@@ -90,7 +92,7 @@ class L1_Wav_L1_Sp(nn.Module):
         return alpha_t*wav_loss + (1-alpha_t)*sp_loss
 
 class UNetResComplex_100Mb(pl.LightningModule):
-    def __init__(self, channels, type="", nsrc=1,subband=4, use_lsd_loss=False,
+    def __init__(self, channels, stem="", nsrc=1,subband=4, use_lsd_loss=False,
                  lr=0.002, gamma=0.9,
                  batchsize=None, frame_length=None,
                  sample_rate=None,
@@ -111,6 +113,7 @@ class UNetResComplex_100Mb(pl.LightningModule):
         self.hop_size = 441
         self.center = True
         self.pad_mode = 'reflect'
+        self.stem = stem
         self.window_size = 2048
         self.window = 'hann'
         self.activation = 'relu'
@@ -127,8 +130,9 @@ class UNetResComplex_100Mb(pl.LightningModule):
         self.batchsize = batchsize
         self.frame_length = frame_length
 
-        # self.hparams['channels'] = 2
-        self.l1loss = get_loss_function("l1")
+        if(stem == "all"): # training mode
+            self.l1loss = L1_Wav_L1_Sp()
+
         # self.lsd_loss = get_loss_function("lsd")
         self.train_step = 0
         self.val_step = 0

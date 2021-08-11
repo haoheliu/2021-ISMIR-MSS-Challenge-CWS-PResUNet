@@ -55,7 +55,7 @@ class SubbandResUNetPredictor():
             print(cmd)
             os.system(cmd)
 
-        self.v_model = self.reload(v_model_path, Conv8Res(channels=2), nsrc=2)
+        self.v_model = self.reload(v_model_path, Conv8Res(channels=2, target="vocals"), nsrc=2)
         print("Loading other model...")
         self.o_model = self.reload(o_model_path, NO_V_multihead_Conv4(channels=2),stem="other", nsrc=2)
 
@@ -64,7 +64,7 @@ class SubbandResUNetPredictor():
         model = model.load_from_checkpoint(pth) if (len(pth) != 0) else model
         if(stem is not None):
             model.stem = stem
-        return  LambdaOverlapAdd(
+        return LambdaOverlapAdd(
             nnet=model,
             n_src=nsrc,
             window_size=44100*10,

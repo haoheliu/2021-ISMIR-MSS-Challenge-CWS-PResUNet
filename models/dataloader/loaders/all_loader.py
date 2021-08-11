@@ -1,10 +1,8 @@
 
 import sys
 
-sys.path.append("../../tools")
 from torch.utils.data import Dataset
-from datas.dataloader.utils import *
-from datas.augmentation.base import AudioAug
+from models.dataloader.utils import *
 import os
 
 class ALL_LOADER(Dataset):
@@ -84,45 +82,3 @@ class ALL_LOADER(Dataset):
     def __len__(self):
         # A Epoch = every 100 hours of datas
         return int(3600*100 / self.frame_length)
-
-
-if __name__ == "__main__":
-    from tools.pytorch.pytorch_util import tensor2numpy
-
-    dl = TEMP_MUSDB_INDIVIDUAL_LOADER(data={
-        "vocals": {
-            "musdb18hq": "/Users/admin/Documents/projects/arnold_workspace/dataIndex/musdb18hq/train/vocals.lst"
-        },
-        "bass": {
-            "musdb18hq": "/Users/admin/Documents/projects/arnold_workspace/dataIndex/musdb18hq/train/bass.lst"
-        },
-        "drums": {
-            "musdb18hq": "/Users/admin/Documents/projects/arnold_workspace/dataIndex/musdb18hq/train/drums.lst"
-        },
-        "other": {
-            "musdb18hq": "/Users/admin/Documents/projects/arnold_workspace/dataIndex/musdb18hq/train/other.lst"
-        },
-        "acc": {
-            "musdb18hq": "/Users/admin/Documents/projects/arnold_workspace/dataIndex/musdb18hq/train/acc.lst"
-        },
-        "no_bass": {
-            "musdb18hq": "/Users/admin/Documents/projects/arnold_workspace/dataIndex/musdb18hq/train/no_bass.lst"
-        },
-        "no_drums": {
-            "musdb18hq": "/Users/admin/Documents/projects/arnold_workspace/dataIndex/musdb18hq/train/no_drums.lst"
-        },
-        "no_other": {
-            "musdb18hq": "/Users/admin/Documents/projects/arnold_workspace/dataIndex/musdb18hq/train/no_other.lst"
-        },
-    } ,  overlap_num=1, frame_length=3.0,sample_rate=44100, target="drums")
-
-    dl = torch.utils.data.DataLoader(dataset=dl,batch_size=4,shuffle=False,num_workers=2)
-
-    import time
-
-    for id,each in enumerate(dl):
-        print(id)
-        print(each.keys())
-        # save_wave(tensor2numpy(each['front']),fname=str(id)+"_f.wav")
-        # save_wave(tensor2numpy(each['background']),fname=str(id)+"_b.wav")
-        time.sleep(0.5)
