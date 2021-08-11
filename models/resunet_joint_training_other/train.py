@@ -57,7 +57,7 @@ if __name__ == "__main__":
     print("DISTRIBUTED", distributed)
     # profiler = AdvancedProfiler(output_filename='_zz.txt', line_count_restriction=1.0)
     ####################################################################################################
-    lr=0.006
+    lr=0.0006
     check_val_every_n_epoch = 2
     gamma=args.gamma
     batchsize = args.batchsize

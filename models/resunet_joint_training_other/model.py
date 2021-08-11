@@ -1,8 +1,9 @@
 import sys
-sys.path.append("/Users/admin/Documents/projects/music-demixing-challenge-starter-kit")
+import os
+
+sys.path.append(os.getcwd())
 
 from models.resunet_joint_training_other.modules import *
-
 import torch.utils
 import torch.utils.data
 import torch.nn.functional as F
@@ -434,17 +435,6 @@ class UNetResComplex_100Mb(pl.LightningModule):
         # Use the default log function to gather info from gpus
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
         self.log("val_loss", avg_loss, on_step=False, on_epoch=True, logger=True, sync_dist=True)
-
-
-if __name__ == "__main__":
-    # 1.02s
-    model = UNetResComplex_100Mb(channels=2)
-    wav = torch.randn((1, 2, 44100))
-    start = time.time()
-    out = model(wav)['wav']
-    print(time.time() - start)
-    print(out.size())
-    print(out)
 
 
 
