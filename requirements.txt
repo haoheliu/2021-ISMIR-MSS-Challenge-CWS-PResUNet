@@ -27,3 +27,4 @@ soundfile
 typing
 pynvml
 GitPython
+progressbar
