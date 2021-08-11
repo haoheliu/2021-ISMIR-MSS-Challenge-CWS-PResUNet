@@ -21,6 +21,7 @@ We will open-source our training pipline soon.
 For bass and drums separation, we directly use [the open-sourced demucs model](https://github.com/facebookresearch/demucs). It's trained with only MUSDB18HQ data, thus is qualified for LeaderBoard A.
 
 ## Usage
+### Using Pretrained Models
 First you need to clone this repo:
 ```shell
 git clone https://github.com/haoheliu/CWS-ResUNet-MSS-Challenge-ISMIR-2021.git
@@ -41,8 +42,11 @@ Finally you can run the following demo. If it's the first time you run this prog
 # <input-wav-file-path> is the .wav file to be separated
 # <output-path-dir> is the folder to store the separation results 
 # python3 main.py -i <input-wav-file-path> -o <output-path-dir>
-python3 main.py -i data/test/zeno_sign_stereo.wav -o data/results
+python3 main.py -i example/test/zeno_sign_stereo.wav -o example/results
 ```
+
+### Train new models from scratch
+
 
 ## todo
 

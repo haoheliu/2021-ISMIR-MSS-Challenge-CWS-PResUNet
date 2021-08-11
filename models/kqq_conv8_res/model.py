@@ -1,7 +1,8 @@
 import sys
-sys.path.append("/Users/admin/Documents/projects/music-demixing-challenge-starter-kit")
-
-from models.kqq_conv8_res.modules import *
+import os
+sys.path.append(os.getcwd())
+from models.config import Config
+from modules import *
 
 import torch.utils
 import torch.utils.data
@@ -11,7 +12,10 @@ from torchlibrosa.stft import magphase
 import numpy as np
 import pytorch_lightning as pl
 from torchlibrosa import STFT
-from models.config import Config
+from utils.overlapadd import LambdaOverlapAdd
+
+from utils.file_io import *
+
 
 class L1(nn.Module):
     def __init__(self):
@@ -42,20 +46,19 @@ class L1_Wav_L1_Sp(nn.Module):
             freeze_parameters=True,
         )
 
-    def __call__(self, output, target, alpha_t=0.85):
+    def __call__(self, output, target, alpha_t=1.0):
         wav_loss = self.l1(output, target)
-
-        sp_loss = self.l1(
-            self.f_helper.wav_to_spectrogram(output, eps=1e-8),
-            self.f_helper.wav_to_spectrogram(target, eps=1e-8)
-        )
-
-        sp_loss /= math.sqrt(self.window_size)
-
+        if(alpha_t < 1):
+            sp_loss = self.l1(
+                self.f_helper.wav_to_spectrogram(output, eps=1e-8),
+                self.f_helper.wav_to_spectrogram(target, eps=1e-8)
+            )
+            sp_loss /= math.sqrt(self.window_size)
+        else: sp_loss = 0.0
         return alpha_t*wav_loss + (1-alpha_t)*sp_loss
 
 class UNetResComplex_100Mb(pl.LightningModule):
-    def __init__(self, channels, nsrc=1, subband=4,
+    def __init__(self, channels, target, nsrc=1, subband=4, use_lsd_loss=False,
                  lr=0.002, gamma=0.9,
                  batchsize=None, frame_length=None,
                  sample_rate=None,
@@ -63,6 +66,7 @@ class UNetResComplex_100Mb(pl.LightningModule):
                  # datas
                  check_val_every_n_epoch=5,  # inside a validation set, how many samples gonna saved
                  ):
+        # sub4 52.041G 66.272M
         super(UNetResComplex_100Mb, self).__init__()
         window_size = 2048
         hop_size = 441
@@ -72,6 +76,7 @@ class UNetResComplex_100Mb(pl.LightningModule):
         activation = 'relu'
         momentum = 0.01
         freeze_parameters = True
+        self.use_lsd_loss = use_lsd_loss
         self.save_hyperparameters()
         self.nsrc = nsrc
         self.subband = subband
@@ -84,8 +89,9 @@ class UNetResComplex_100Mb(pl.LightningModule):
         self.frame_length = frame_length
 
         # self.hparams['channels'] = 2
-        # self.lsd_loss = get_loss_function("lsd")
+        self.target = target
         self.wav_spec_loss = L1_Wav_L1_Sp()
+        # self.lsd_loss = get_loss_function("lsd")
         self.train_step = 0
         self.val_step = 0
         self.check_val_every_n_epoch = check_val_every_n_epoch
@@ -150,6 +156,30 @@ class UNetResComplex_100Mb(pl.LightningModule):
         self.after_conv2 = nn.Conv2d(in_channels=32, out_channels=channels * nsrc * 4 * subband,
                                      kernel_size=(1, 1), stride=(1, 1), padding=(0, 0), bias=True)
 
+        self.init_weights()
+        self.lr_lambda = lambda step: self.get_lr_lambda(step,
+                                                        gamma = self.gamma,
+                                                        warm_up_steps=warm_up_steps,
+                                                        reduce_lr_steps=reduce_lr_steps)
+
+    def get_lr_lambda(self,step, gamma, warm_up_steps, reduce_lr_steps):
+        r"""Get lr_lambda for LambdaLR. E.g.,
+
+        .. code-block: python
+            lr_lambda = lambda step: get_lr_lambda(step, warm_up_steps=1000, reduce_lr_steps=10000)
+
+            from torch.optim.lr_scheduler import LambdaLR
+            LambdaLR(optimizer, lr_lambda)
+        """
+        if step <= warm_up_steps:
+            return step / warm_up_steps
+        else:
+            return gamma ** (step // reduce_lr_steps)
+
+    def init_weights(self):
+        init_bn(self.bn0)
+        init_layer(self.after_conv2)
+
     def forward(self, input):
         """
         Args:
@@ -160,7 +190,9 @@ class UNetResComplex_100Mb(pl.LightningModule):
             'wav': (batch_size, channels_num, segment_samples),
             'sp': (batch_size, channels_num, time_steps, freq_bins)}
         """
+
         # sp, cos_in, sin_in = self.f_helper.wav_to_spectrogram_phase(input)
+
         sp, cos_in, sin_in = self.f_helper.wav_to_mag_phase_subband_spectrogram(input)
 
         """(batch_size, channels_num, time_steps, freq_bins)"""
@@ -243,6 +275,72 @@ class UNetResComplex_100Mb(pl.LightningModule):
 
         output_dict = {'wav': wav_out}
         return output_dict
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, amsgrad=True)
+        # StepLR = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=self.gamma)
+        scheduler = {
+            'scheduler': torch.optim.lr_scheduler.LambdaLR(optimizer, self.lr_lambda),
+            'interval': 'step',
+            'frequency': 1,
+        }
+        return [optimizer], [scheduler]
+
+    def preprocess(self, batch, train=False):
+        if (train):
+            vocal = batch['front']
+            acc = batch['background']
+            vocal, acc = vocal.float().permute(0, 2, 1), acc.float().permute(0, 2, 1)
+            mixture = vocal + acc
+            return vocal, acc, mixture
+        else:  # during test or validaton
+            vocal = batch[self.target]
+            if(self.target == "bass"): acc = batch['no_bass']
+            elif (self.target == "other"): acc = batch['no_other']
+            elif (self.target == "drums"): acc = batch['no_drums']
+            elif (self.target == "vocals"): acc = batch['acc']
+            else: acc = None
+            vocal, acc = vocal.float().permute(0, 2, 1), acc.float().permute(0, 2, 1)
+            mixture = acc + vocal
+            return vocal, acc, mixture, batch['fname'][0]  # a sample for a batch
+
+    def calc_loss(self, output, vocal):
+        l1 = self.wav_spec_loss(output, vocal)
+        self.log("loss", l1, on_step=True, on_epoch=True, logger=True, sync_dist=True)
+        return l1
+
+    def training_step(self, batch, batch_nb):
+        vocal, acc, mixture = self.preprocess(batch, train=True)
+        output = self(mixture)['wav']
+        loss = self.calc_loss(output, vocal)
+        self.train_step += 1
+        return {"loss": loss}
+
+    def validation_step(self, batch, batch_nb):
+        vocal, acc, mixture, fname = self.preprocess(batch)
+        continuous_nnet = LambdaOverlapAdd(
+            nnet=self,
+            n_src=self.channels * self.nsrc,
+            window_size=self.sample_rate * 20,
+            in_margin =int(self.sample_rate*1.5),
+            window="boxcar",
+            reorder_chunks=False,
+            enable_grad=False,
+            device=self.device
+        )
+        output = continuous_nnet.forward(mixture)  # [bs, samples, channels]
+        loss = self.calc_loss(output, vocal)
+        output = torch.transpose(output,2,1)
+        save_wave((tensor2numpy(output) * 2 ** 15).astype(np.short),
+                  fname=os.path.join(self.val_result_save_dir_step, str(fname) + self.target + ".wav"))
+        return {'val_loss':loss}
+
+    def validation_epoch_end(self, outputs):
+        # Use the default log function to gather info from gpus
+        avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
+        self.log("val_loss", avg_loss, on_step=False, on_epoch=True, logger=True, sync_dist=True)
+
+
 
 if __name__ == "__main__":
     import time

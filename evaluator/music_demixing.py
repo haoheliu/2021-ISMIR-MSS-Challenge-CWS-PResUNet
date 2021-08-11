@@ -33,8 +33,8 @@ def time_limit(seconds):
 
 class MusicDemixingPredictor:
     def __init__(self):
-        self.test_data_path = os.getenv("TEST_DATASET_PATH", os.getcwd() + "/data/test/")
-        self.results_data_path = os.getenv("RESULTS_DATASET_PATH", os.getcwd() + "/data/results/")
+        self.test_data_path = os.getenv("TEST_DATASET_PATH", os.getcwd() + "/example/test/")
+        self.results_data_path = os.getenv("RESULTS_DATASET_PATH", os.getcwd() + "/example/results/")
         self.inference_setup_timeout = int(os.getenv("INFERENCE_SETUP_TIMEOUT_SECONDS", "900"))
         self.inference_per_music_timeout = int(os.getenv("INFERENCE_PER_MUSIC_TIMEOUT_SECONDS", "4000"))
         self.partial_run = os.getenv("PARTIAL_RUN_MUSIC_NAMES", None)

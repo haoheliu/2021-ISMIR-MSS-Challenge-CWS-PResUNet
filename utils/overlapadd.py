@@ -5,7 +5,6 @@ from torch import nn
 from scipy.optimize import linear_sum_assignment
 import numpy as np
 import torch.nn.functional as F
-import concurrent
 
 class PITLossWrapper(nn.Module):
     r"""Permutation invariant loss wrapper.
@@ -151,7 +150,7 @@ class PITLossWrapper(nn.Module):
 
         Returns:
             torch.Tensor or size $(batch, nsrc, nsrc)$, losses computed for
-            all permutations of the targets and est_targets.
+            all_mel_e2e permutations of the targets and est_targets.
 
         This function can be called on a loss function which returns a tensor
         of size :math:`(batch)`. There are more efficient ways to compute pair-wise
@@ -249,7 +248,7 @@ class PITLossWrapper(nn.Module):
     @staticmethod
     def find_best_perm_factorial(pair_wise_losses, perm_reduce=None, **kwargs):
         r"""Find the best permutation given the pair-wise losses by looping
-        through all the permutations.
+        through all_mel_e2e the permutations.
 
         Args:
             pair_wise_losses (:class:`torch.Tensor`):
@@ -390,7 +389,6 @@ class LambdaOverlapAdd(torch.nn.Module):
         window="hanning",
         reorder_chunks=True,
         enable_grad=False,
-            thread = 1,
         device = torch.device("cpu")
     ):
         super().__init__()
@@ -410,62 +408,10 @@ class LambdaOverlapAdd(torch.nn.Module):
             self.use_window = True
         else:
             self.use_window = False
-        self.thread = thread
+
         self.register_buffer("window", window.type_as(nnet.f_helper.stft.conv_real.weight))
         self.reorder_chunks = reorder_chunks
         self.enable_grad = enable_grad
-
-    def trunk_inference(self, unfolded, key, batch, out, id, has_first, has_last, last_frame_samples):
-        print(unfolded.size())
-        n_chunks = unfolded.size()[-1]
-        out = []
-
-        for frame_idx in range(n_chunks):  # for loop to spare memory
-            print(frame_idx)
-            # print(unfolded[..., frame_idx].size())
-            if(frame_idx == 0 and has_first == True):
-                frame = self.nnet(unfolded[..., frame_idx][...,self.in_margin:])
-                frame = frame[key]  # convert to what the following code needs
-                frame = frame[:, :, :-self.in_margin]
-            elif(frame_idx == n_chunks-1 and last_frame_samples != 0 and has_last == True):
-                frame = self.nnet(unfolded[..., frame_idx][...,:self.in_margin+last_frame_samples])
-                frame = frame[key]  # convert to what the following code needs
-                frame = frame[:, :, self.in_margin:]
-                frame = F.pad(frame,(0,self.window_size-last_frame_samples))
-            elif(frame_idx == n_chunks-1 and last_frame_samples == 0 and has_last == True):
-                frame = self.nnet(unfolded[..., frame_idx][...,:-self.in_margin])
-                frame = frame[key]  # convert to what the following code needs
-                frame = frame[:, :, self.in_margin:]
-            else:
-                frame = self.nnet(unfolded[..., frame_idx])
-                # x_out = self.nnet(x[:,:,int(frame_idx*self.window_size)-self.in_margin:int((frame_idx+1)*self.window_size)+self.in_margin])
-                # print("out",torch.sum(x_out['wav']-frame['wav']))
-                ######################################################################
-                # frame = frame['wav'].permute(0,2,1) # convert to what the following code needs
-                frame = frame[key] # convert to what the following code needs
-                frame = frame[:,:,self.in_margin:-self.in_margin]
-                # print(torch.sum(unfolded[..., frame_idx]-x[:,:,int(frame_idx*self.window_size)-self.in_margin:int((frame_idx+1)*self.window_size)+self.in_margin]))
-            ######################################################################
-            # user must handle multichannel by reshaping to batch
-            if frame_idx == 0:
-                assert frame.ndim == 3, "nnet should return (batch, n_src, time)"
-                if self.n_src is not None:
-                    assert frame.shape[1] == self.n_src, "nnet should return (batch, n_src, time)"
-                n_src = frame.shape[1]
-            frame = frame.reshape(batch * n_src, -1)
-
-            if frame_idx != 0 and self.reorder_chunks:
-                # we determine best perm based on xcorr with previous sources
-                frame = _reorder_sources(frame, out[-1], n_src, self.window_size, self.hop_size)
-
-            if self.use_window:
-                frame = frame * self.window
-            else:
-                frame = frame / (self.window_size / self.hop_size)
-            out.append(frame.detach())
-
-        return out, n_src, id
-
 
     def ola_forward(self, x, key='wav'):
         """Heart of the class: segment signal, apply func, combine with OLA."""
@@ -504,40 +450,49 @@ class LambdaOverlapAdd(torch.nn.Module):
 
         # unfolded = unfolded.permute(0,2,1,3) # convert to the shape of the model input
         ######################################################################
-        # start = time.time()
-        cores = self.thread
-        out, out_dict = [],{}
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            proc = []
-            for i in range(cores):
-                if(i != cores-1 and i != 0):
-                    block = int(n_chunks//cores)+1
-                    p = executor.submit(self.trunk_inference,
-                                    unfolded[...,block*i:block*(i+1)], key, batch, out, i, False, False, last_frame_samples)
-                    # print(i,block*i,block*(i+1))
-                    proc.append(p)
-                elif(i == 0):
-                    block = int(n_chunks//cores)+1
-                    p = executor.submit(self.trunk_inference,
-                                    unfolded[...,block*i:block*(i+1)], key, batch, out, i, True,
-                                        False if(cores != 0) else True,
-                                        last_frame_samples)
-                    # print(i,block*i,block*(i+1))
-                    proc.append(p)
-                else:
-                    block = (int(n_chunks//cores)+1)*i
-                    if(unfolded[...,block:].size()[-1] != 0 ):
-                        p = executor.submit(self.trunk_inference,
-                                        unfolded[...,block:], key, batch, out, i, False, True, last_frame_samples)
-                        # print(i,block,":")
-                        proc.append(p)
-            for f in concurrent.futures.as_completed(proc):
-                frame, n_src, id = f.result()
-                out_dict[id] = frame
-        for i in sorted(out_dict.keys()):
-            out = out + out_dict[i]
+        for frame_idx in range(n_chunks):  # for loop to spare memory
+            # print(unfolded[..., frame_idx].size())
+            if(frame_idx == 0):
+                frame = self.nnet(unfolded[..., frame_idx][...,self.in_margin:])
+                frame = frame[key]  # convert to what the following code needs
+                frame = frame[:, :, :-self.in_margin]
+            elif(frame_idx == n_chunks-1 and last_frame_samples != 0):
+                frame = self.nnet(unfolded[..., frame_idx][...,:self.in_margin+last_frame_samples])
+                frame = frame[key]  # convert to what the following code needs
+                frame = frame[:, :, self.in_margin:]
+                frame = F.pad(frame,(0,self.window_size-last_frame_samples))
+            elif(frame_idx == n_chunks-1 and last_frame_samples == 0):
+                frame = self.nnet(unfolded[..., frame_idx][...,:-self.in_margin])
+                frame = frame[key]  # convert to what the following code needs
+                frame = frame[:, :, self.in_margin:]
+            else:
+                frame = self.nnet(unfolded[..., frame_idx])
+                # x_out = self.nnet(x[:,:,int(frame_idx*self.window_size)-self.in_margin:int((frame_idx+1)*self.window_size)+self.in_margin])
+                # print("out",torch.sum(x_out['wav']-frame['wav']))
+                ######################################################################
+                # frame = frame['wav'].permute(0,2,1) # convert to what the following code needs
+                frame = frame[key] # convert to what the following code needs
+                frame = frame[:,:,self.in_margin:-self.in_margin]
+                # print(torch.sum(unfolded[..., frame_idx]-x[:,:,int(frame_idx*self.window_size)-self.in_margin:int((frame_idx+1)*self.window_size)+self.in_margin]))
+            ######################################################################
+            # user must handle multichannel by reshaping to batch
+            if frame_idx == 0:
+                assert frame.ndim == 3, "nnet should return (batch, n_src, time)"
+                if self.n_src is not None:
+                    assert frame.shape[1] == self.n_src, "nnet should return (batch, n_src, time)"
+                n_src = frame.shape[1]
+            frame = frame.reshape(batch * n_src, -1)
 
-        ######################################################################
+            if frame_idx != 0 and self.reorder_chunks:
+                # we determine best perm based on xcorr with previous sources
+                frame = _reorder_sources(frame, out[-1], n_src, self.window_size, self.hop_size)
+
+            if self.use_window:
+                frame = frame * self.window
+            else:
+                frame = frame / (self.window_size / self.hop_size)
+            out.append(frame)
+
         out = torch.stack(out).reshape(n_chunks, batch * n_src, self.window_size)
         out = out.permute(1, 2, 0)
 

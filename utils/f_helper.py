@@ -166,13 +166,13 @@ class FDomainHelper(nn.Module):
         :return:
             loss = torch.nn.L1Loss()
             models = FDomainHelper(subband=4)
-            data = torch.randn((3,1, 44100*3))
+            example = torch.randn((3,1, 44100*3))
 
-            sps, coss, sins = models.wav_to_mag_phase_subband_spectrogram(data)
+            sps, coss, sins = models.wav_to_mag_phase_subband_spectrogram(example)
             wav = models.mag_phase_subband_spectrogram_to_wav(sps,coss,sins,44100*3//4)
 
-            print(loss(data,wav))
-            print(torch.max(torch.abs(data-wav)))
+            print(loss(example,wav))
+            print(torch.max(torch.abs(example-wav)))
 
         """
         # [batchsize, channels, samples]

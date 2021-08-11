@@ -1,5 +1,10 @@
 __pycache__
+__MACOSX
 *.th
+*.wav
+*.zip
+*.lst
 cache_model
 .DS_Store
 .idea
+*_log
