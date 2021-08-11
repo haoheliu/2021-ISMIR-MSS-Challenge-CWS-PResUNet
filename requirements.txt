@@ -25,5 +25,4 @@ diffq
 demucs
 soundfile
 typing
-python3-wget
 
