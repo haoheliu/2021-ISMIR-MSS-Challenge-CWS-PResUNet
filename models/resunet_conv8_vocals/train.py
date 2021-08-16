@@ -26,6 +26,7 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser = pl.Trainer.add_argparse_args(parser)
 
+    parser.add_argument('--gpuids', nargs="+", type=int, default=[])
     parser.add_argument('--name', type=str, default="four subband resunet model")
     parser.add_argument('--type', type=str, default="")
     parser.add_argument('--batchsize', type=int, default=16)
@@ -115,7 +116,7 @@ if __name__ == "__main__":
 
     if(gpu_nums > 0):
         trainer = Trainer.from_argparse_args(args,
-                                             gpus = list(range(0,gpu_nums)),
+                                             gpus = list(range(0,gpu_nums)) if(len(args.gpuids) ==0) else args.gpuids,
                                              max_epochs=5000,
                                              terminate_on_nan=True,
                                              num_sanity_val_steps=2,
