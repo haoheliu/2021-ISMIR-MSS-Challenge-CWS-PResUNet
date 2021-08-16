@@ -74,7 +74,9 @@ source models/resunet_conv8_vocals/run.sh
 # Note: Batchsize is set to 16 by default. Check your hard ware configurations to avoid GPU OOM.
 source models/resunet_joint_training_other/run.sh
 ```
-Training logs will be presented in the *mss_challenge_log* folder by default. System will perform validations every two epoches.
+- By default, we use 16 batchsize and 8 gpus. You can custum your own by modifying parameters in the above run.sh files.
+
+- Training logs will be presented in the *mss_challenge_log* folder. System will perform validations every two epoches.
 
 Here we provide the result of a test run: 'source models/resunet_conv8_vocals/run.sh'.
 
