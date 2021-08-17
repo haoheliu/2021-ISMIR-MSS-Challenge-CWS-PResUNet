@@ -34,8 +34,9 @@ from demucs.utils import apply_model, load_model  # noqa
 
 class DemucsPredictor():
 
-    def __init__(self, use_gpu=True):
+    def __init__(self, use_gpu=True, sources=[]):
         self.use_gpu = use_gpu
+        self.sources = sources
 
     def prediction_setup(self):
         torch.hub.set_dir('./utils/demucs_checkpoints')
@@ -72,10 +73,9 @@ class DemucsPredictor():
         estimates = estimates * std + mean
 
         # Store results
-        target_file_map = {
-            "drums": drums_file_path,
-            "bass": bass_file_path,
-        }
+        target_file_map = {}
+        if("drums" in self.sources): target_file_map["drums"] = drums_file_path
+        if("bass" in self.sources): target_file_map["bass"] = bass_file_path
         for target, path in target_file_map.items():
             idx = self.separator.sources.index(target)
             source = estimates[idx]

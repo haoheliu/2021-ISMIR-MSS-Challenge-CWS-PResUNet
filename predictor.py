@@ -32,11 +32,12 @@ def post(y):
 
 class SubbandResUNetPredictor():
     """Lower baseline of using `1/4 * mixture` as prediction for bass, drums, other and vocals."""
-    def __init__(self, cuda=True):
+    def __init__(self, cuda=True, sources=[]):
         if(cuda and not torch.cuda.is_available()):
             print("Warning: You choose to use GPU but no CUDA device is found by pytorch.")
             time.sleep(2)
         self.use_gpu = cuda
+        self.sources = sources
         if(self.use_gpu):
             print("Using GPU Accelerations")
 
@@ -44,32 +45,35 @@ class SubbandResUNetPredictor():
         # print("Setting up")
         """Initialize predictor."""
         self.vocal_result_cache={}
-        self.demucs = DemucsPredictor(use_gpu=self.use_gpu)
-        self.demucs.prediction_setup()
-        print("Loading vocal model...")
+        if ("bass" in self.sources or "drums" in self.sources):
+            self.demucs = DemucsPredictor(use_gpu=self.use_gpu,sources=self.sources)
+            self.demucs.prediction_setup()
 
         v_model_path = "models/resunet_conv8_vocals/checkpoints/vocals/epoch=49-val_loss=0.0902_trimed.ckpt"
         o_model_path = "models/resunet_joint_training_other/checkpoints_nov/other/epoch=33-val_loss=0.4293_trimed.ckpt"
 
         os.makedirs(os.path.dirname(v_model_path),exist_ok=True)
         os.makedirs(os.path.dirname(o_model_path),exist_ok=True)
-        if (not os.path.exists(v_model_path)):
+
+        if (not os.path.exists(v_model_path) and "vocals" in self.sources):
             print("Downloading the weight of model for the vocal track")
             cmd = "wget https://zenodo.org/record/5175846/files/epoch%3D49-val_loss%3D0.0902_trimed.ckpt?download=1 -O "+ v_model_path
             print(cmd)
             os.system(cmd)
-        if(not os.path.exists(o_model_path)):
+        if(not os.path.exists(o_model_path) and "other" in self.sources):
             print("Downloading the weight of model for the other track")
             cmd = "wget https://zenodo.org/record/5175846/files/epoch%3D33-val_loss%3D0.4293_trimed.ckpt?download=1 -O " + o_model_path
             print(cmd)
             os.system(cmd)
 
-        self.v_model = self.reload(v_model_path, Conv8Res(channels=2, target="vocals"), nsrc=2)
-        print("Loading other model...")
-        self.o_model = self.reload(o_model_path, NO_V_multihead_Conv4(channels=2),stem="other", nsrc=2)
-        if(self.use_gpu):
-            self.v_model = self.v_model.cuda()
-            self.o_model = self.o_model.cuda()
+        if("vocals" in self.sources):
+            print("Loading vocal model...")
+            self.v_model = self.reload(v_model_path, Conv8Res(channels=2, target="vocals"), nsrc=2)
+            if (self.use_gpu): self.v_model = self.v_model.cuda()
+        if ("other" in self.sources):
+            print("Loading other model...")
+            self.o_model = self.reload(o_model_path, NO_V_multihead_Conv4(channels=2),stem="other", nsrc=2)
+            if(self.use_gpu): self.o_model = self.o_model.cuda()
 
     def reload(self, pth:str, model: pl.LightningModule, nsrc: int, stem=None):
         model = model.eval()
@@ -141,9 +145,11 @@ class SubbandResUNetPredictor():
 
         proc = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
-            p = executor.submit(self.demucs.prediction,mixture_file_path,bass_file_path, drums_file_path, other_file_path, vocals_file_path)
-            proc.append(p)
-            for type in ["vocals","other"]:
+            if("bass" in self.sources or "drums" in self.sources):
+                p = executor.submit(self.demucs.prediction,mixture_file_path,bass_file_path, drums_file_path, other_file_path, vocals_file_path)
+                proc.append(p)
+            for type in self.sources:
+                if(type == "bass" or type == "drums"): continue # skip, use demucs
                 for i in range(len(segments_v)):
                     p = executor.submit(self.sep, segments_v[i], type+"_"+str(i))
                     proc.append(p)
@@ -154,18 +160,11 @@ class SubbandResUNetPredictor():
             result = post(result)
             res[t] = result
 
-        other = self.trim_and_concatenate(res,key="other",seg_length=seg_length_v)
-        vocals = self.trim_and_concatenate(res,key="vocals",seg_length=seg_length_v)
+        if ("other" in self.sources):
+            other = self.trim_and_concatenate(res,key="other",seg_length=seg_length_v)
+            sf.write(other_file_path, other, rate)
+        if ("vocals" in self.sources):
+            vocals = self.trim_and_concatenate(res,key="vocals",seg_length=seg_length_v)
+            sf.write(vocals_file_path, vocals, rate)
 
-        sf.write(other_file_path, other, rate)
-        sf.write(vocals_file_path, vocals, rate)
-
-        while(True):
-            if(not os.path.exists(bass_file_path)): continue
-            if (not os.path.exists(drums_file_path)): continue
-            if (not os.path.exists(other_file_path)): continue
-            if (not os.path.exists(vocals_file_path)): continue
-            break
-
-        # print("%s: prediction completed." % mixture_file_path)
 

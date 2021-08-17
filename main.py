@@ -3,17 +3,20 @@ import time
 import os
 from argparse import ArgumentParser
 from progressbar import *
+from utils.filtering import filt
 
 parser = ArgumentParser()
 
 parser.add_argument("-i", "--input_file_path", default="", help="The .wav file or the audio folder to be processed")
 parser.add_argument("-o", "--output_path", default="", help="The output dirpath for the results")
+parser.add_argument("-s", "--sources", nargs="+", default=["vocals","bass","drums","other"], help="The source you'd like to separate")
 parser.add_argument("--cuda", nargs="?",default="", help="Whether use GPU acceleration.")
+parser.add_argument("--wiener", nargs="?",default="", help="Whether use GPU acceleration.")
 
 args = parser.parse_args()
 
 if __name__ == '__main__':
-    scaledmixture_predictor = SubbandResUNetPredictor(cuda=True if(args.cuda is None) else False)
+    scaledmixture_predictor = SubbandResUNetPredictor(cuda=True if(args.cuda is None) else False,sources=args.sources)
 
     submission = scaledmixture_predictor
     submission.prediction_setup()
@@ -32,6 +35,10 @@ if __name__ == '__main__':
         submission.prediction(
             mixture_file_path=args.input_file_path,
             vocals_file_path=vocals, bass_file_path=bass, drums_file_path=drums, other_file_path=other)
+        if(args.wiener is None):
+            print("Perform wiener filter")
+            filt(args.input_file_path, bass, drums, other, vocals)
+            print("Complete")
     else:
         files = os.listdir(args.input_file_path)
         print("Found", len(files), "files in", args.input_file_path)
@@ -56,6 +63,10 @@ if __name__ == '__main__':
             submission.prediction(
                 mixture_file_path=os.path.join(args.input_file_path,file),
                 vocals_file_path=vocals, bass_file_path=bass, drums_file_path=drums, other_file_path=other)
+            if (args.wiener is None):
+                print("Perform wiener filter")
+                filt(os.path.join(args.input_file_path,file), bass, drums, other, vocals)
+                print("Complete")
             pbar.update(int((i / (len(files) - 1)) * 100))
 
     print("Prediction Success")
