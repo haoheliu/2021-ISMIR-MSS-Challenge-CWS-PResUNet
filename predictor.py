@@ -9,7 +9,8 @@ import torch
 from models.resunet_conv8_vocals.model import UNetResComplex_100Mb as Conv8Res
 from models.resunet_joint_training_other.model import UNetResComplex_100Mb as NO_V_multihead_Conv4
 from demucs_predictor import DemucsPredictor
-from utils.overlapadd_singlethread_exclude_vocal import LambdaOverlapAdd
+from utils.overlapadd_singlethread_exclude_vocal import LambdaOverlapAdd as Exclude_Vocal_LambdaOverlapAdd
+from utils.overlapadd_singlethread import LambdaOverlapAdd
 
 MARGIN = int(44100*1.5)
 
@@ -80,7 +81,18 @@ class SubbandResUNetPredictor():
         model = model.load_from_checkpoint(pth) if (len(pth) != 0) else model
         if(stem is not None):
             model.stem = stem
-        return LambdaOverlapAdd(
+        if(self.sources == ['other']): # do not exclude vocal
+            return LambdaOverlapAdd(
+                nnet=model,
+                n_src=nsrc,
+                window_size=44100 * 10,
+                in_margin=MARGIN,
+                window="boxcar",
+                reorder_chunks=False,
+                enable_grad=False,
+            ).eval()
+        else:
+            return Exclude_Vocal_LambdaOverlapAdd(
             nnet=model,
             n_src=nsrc,
             window_size=44100*10,
@@ -142,14 +154,13 @@ class SubbandResUNetPredictor():
             x = np.concatenate([x[...], x[...]], axis=1)
 
         segments_v, seg_length_v = self.divide(x, threads=2)
-
         proc = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
             if("bass" in self.sources or "drums" in self.sources):
                 p = executor.submit(self.demucs.prediction,mixture_file_path,bass_file_path, drums_file_path, other_file_path, vocals_file_path)
                 proc.append(p)
             for type in self.sources:
-                if(type == "bass" or type == "drums"): continue # skip, use demucs
+                if(type == "bass" or type == "drums"): continue # skip, use demucs for these two sources
                 for i in range(len(segments_v)):
                     p = executor.submit(self.sep, segments_v[i], type+"_"+str(i))
                     proc.append(p)

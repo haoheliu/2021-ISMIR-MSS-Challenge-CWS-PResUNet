@@ -9,7 +9,7 @@ parser = ArgumentParser()
 
 parser.add_argument("-i", "--input_file_path", default="", help="The .wav file or the audio folder to be processed")
 parser.add_argument("-o", "--output_path", default="", help="The output dirpath for the results")
-parser.add_argument("-s", "--sources", nargs="+", default=["vocals","bass","drums","other"], help="The source you'd like to separate")
+parser.add_argument("-s", "--sources", nargs="+", default=["vocals","bass","drums","other"], help="The source you'd like to separate. vocals, bass, drums, other")
 parser.add_argument("--cuda", nargs="?",default="", help="Whether use GPU acceleration.")
 parser.add_argument("--wiener", nargs="?",default="", help="Whether use GPU acceleration.")
 
@@ -32,9 +32,11 @@ if __name__ == '__main__':
         vocals = os.path.join(output_path,"vocals.wav")
         drums = os.path.join(output_path,"drums.wav")
         other = os.path.join(output_path,"other.wav")
+        print("Start Prediction.")
         submission.prediction(
             mixture_file_path=args.input_file_path,
             vocals_file_path=vocals, bass_file_path=bass, drums_file_path=drums, other_file_path=other)
+        print("Congratulations! Prediction Complete.")
         if(args.wiener is None):
             print("Perform wiener filter")
             filt(args.input_file_path, bass, drums, other, vocals)

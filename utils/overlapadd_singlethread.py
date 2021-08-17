@@ -449,7 +449,6 @@ class LambdaOverlapAdd(torch.nn.Module):
         # unfolded = unfolded.permute(0,2,1,3) # convert to the shape of the model input
         ######################################################################
         for frame_idx in range(n_chunks):  # for loop to spare memory
-            print(frame_idx)
             # print(unfolded[..., frame_idx].size())
             if(frame_idx == 0):
                 frame = self.nnet(unfolded[..., frame_idx][...,self.in_margin:])
@@ -508,7 +507,7 @@ class LambdaOverlapAdd(torch.nn.Module):
         out = out[...,:n_frames]
         return out
 
-    def forward(self, x, key="wav"):
+    def forward(self, x, type:str, key='wav'):
         """Forward module: segment signal, apply func, combine with OLA.
 
         Args:
