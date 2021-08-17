@@ -1,4 +1,7 @@
 # Music Source Separation with Channel-wise Subband Phase Aware ResUnet (CWS-PResUNet)
+
+![ranking](pics/demo.png)
+
 ## Introduction
 This repo contains the pretrained Music Source Separation models I submitted to the [2021 ISMIR MSS Challenge](https://www.aicrowd.com/challenges/music-demixing-challenge-ismir-2021).
 We only participate the Leaderboard A, so these models are solely trained on MUSDB18HQ.
