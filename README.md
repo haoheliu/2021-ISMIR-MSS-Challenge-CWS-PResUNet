@@ -1,7 +1,7 @@
 # Music Source Separation with Channel-wise Subband Phase Aware ResUnet (CWS-PResUNet)
 ## Introduction
 This repo contains the pretrained Music Source Separation models I submitted to the [2021 ISMIR MSS Challenge](https://www.aicrowd.com/challenges/music-demixing-challenge-ismir-2021).
-We only participate the Leaderboard A, so these models are only trained on MUSDB18HQ.
+We only participate the Leaderboard A, so these models are solely trained on MUSDB18HQ.
 
 You can use this repo to separate 'bass', 'drums', 'vocals', and 'other' tracks from a music mixture.
 Also we provides our *vocals* and *other* models' training pipline. You can train your own model easily.
@@ -35,7 +35,7 @@ virtualenv --no-site-packages env_mss # create new environment
 source env_mss/bin/activate # activate environment
 pip3 install -r requirements.txt # install requirements
 ```
-You'd better have *wget* and *unzip* command installed so that to download pretrained models and unzip them.
+You'd better have *wget* and *unzip* command installed so that the scripts can automatically download pretrained models and unzip them.
 
 ### 1.2 Use pretrained model
 To use the pretrained model to conduct music source separation. You can run the following demos. If it's the first time you run this program, it will automatically download the pretrained models.
