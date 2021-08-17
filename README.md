@@ -45,11 +45,12 @@ You'd better have *wget* and *unzip* command installed so that the scripts can a
 To use the pretrained model to conduct music source separation. You can run the following demos. If it's the first time you run this program, it will automatically download the pretrained models.
 
 ```shell
-python3 main -i <input-wav-file-path/folder> \
-             -o <output-path-dir> \
-             -s <sources-to-separate> \ # vocals bass drums other (all four stems by default)
-             --cuda \ # if wanna use GPU, use this flag
-             --wiener \ # if wanna use wiener filtering, use this flag
+python3 main -i <input-wav-file-path/folder> 
+             -o <output-path-dir> 
+             -s <sources-to-separate>  # vocals bass drums other (all four stems by default)
+             --cuda  # if wanna use GPU, use this flag
+             --wiener  # if wanna use wiener filtering, use this flag. 
+             # '--wiener' can take effect only when separation of all four tracks are done or you separate four tracks at the same time.
              
 # <input-wav-file-path> is the .wav file to be separated or a folder containing all .wav mixtures.
 # <output-path-dir> is the folder to store the separation results 

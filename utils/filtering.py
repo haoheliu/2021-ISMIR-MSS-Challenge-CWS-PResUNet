@@ -498,6 +498,11 @@ def filt_single_channel(mixture_file_path):
     sf.write(file="mixture.wav",data=out.numpy().T,samplerate=44100)
 
 def filt(mixture_file_path, bass_file_path, drums_file_path, other_file_path, vocals_file_path):
+    assert os.path.exists(mixture_file_path), "Error: "+mixture_file_path+" not found! Cannot perform wiener filtering without estimated sources from all tracks"
+    assert os.path.exists(bass_file_path), "Error: "+mixture_file_path+" not found! Cannot perform wiener filtering without estimated sources from all tracks"
+    assert os.path.exists(drums_file_path), "Error: "+drums_file_path+" not found! Cannot perform wiener filtering without estimated sources from all tracks"
+    assert os.path.exists(other_file_path), "Error: "+other_file_path+" not found! Cannot perform wiener filtering without estimated sources from all tracks"
+    assert os.path.exists(vocals_file_path), "Error: "+vocals_file_path+" not found! Cannot perform wiener filtering without estimated sources from all tracks"
     def proc(path):
         audio,_ = librosa.load(path, sr=44100, mono=False)
         audio = torch.stft(torch.tensor(audio), n_fft=2048)
