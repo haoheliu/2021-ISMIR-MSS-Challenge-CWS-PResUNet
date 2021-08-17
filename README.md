@@ -45,17 +45,23 @@ You'd better have *wget* and *unzip* command installed so that the scripts can a
 To use the pretrained model to conduct music source separation. You can run the following demos. If it's the first time you run this program, it will automatically download the pretrained models.
 
 ```shell
+python3 main -i <input-wav-file-path/folder> \
+             -o <output-path-dir> \
+             -s <sources-to-separate> \ # vocals bass drums other (all four stems by default)
+             --cuda \ # if wanna use GPU, use this flag
+             --wiener \ # if wanna use wiener filtering, use this flag
+             
 # <input-wav-file-path> is the .wav file to be separated or a folder containing all .wav mixtures.
 # <output-path-dir> is the folder to store the separation results 
 # python3 main.py -i <input-wav-file-path> -o <output-path-dir>
-# Separate a single file
-python3 main.py -i example/test/zeno_sign_stereo.wav -o example/results
+# Separate a single file to four sources
+python3 main.py -i example/test/zeno_sign_stereo.wav -o example/results -s vocals bass drums other
 # Separate all the files in a folder
 python3 main.py -i example/test/ -o example/results
 # Use GPU Acceleration
 python3 main.py -i example/test/zeno_sign_stereo.wav -o example/results --cuda
-# Separate all the files in a folder using GPU
-python3 main.py -i example/test -o example/results --cuda
+# Separate all the files in a folder using GPU and wiener filtering post processing
+python3 main.py -i example/test -o example/results --cuda --wiener
 ```
 Each pretrained model in this repo take us approximately two days on 8 V100 GPUs to train.
 
