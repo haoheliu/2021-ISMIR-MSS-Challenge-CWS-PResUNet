@@ -1,5 +1,6 @@
 import concurrent.futures
 import os
+import time
 
 import numpy as np
 import pytorch_lightning as pl
@@ -24,18 +25,26 @@ def pre(x):
     return x.permute(1, 0)[None, ...]
 
 def post(y):
+    if(y is None): return None
+    if(y.is_cuda):
+        y = y.detach().cpu()
     return y[0, ...].permute(1, 0).numpy()
 
 class SubbandResUNetPredictor():
     """Lower baseline of using `1/4 * mixture` as prediction for bass, drums, other and vocals."""
+    def __init__(self, cuda=True):
+        if(cuda and not torch.cuda.is_available()):
+            print("Warning: You choose to use GPU but no CUDA device is found by pytorch.")
+            time.sleep(2)
+        self.use_gpu = cuda
+        if(self.use_gpu):
+            print("Using GPU Accelerations")
 
     def prediction_setup(self):
         # print("Setting up")
         """Initialize predictor."""
         self.vocal_result_cache={}
-
-        self.demucs = DemucsPredictor()
-
+        self.demucs = DemucsPredictor(use_gpu=self.use_gpu)
         self.demucs.prediction_setup()
         print("Loading vocal model...")
 
@@ -58,6 +67,9 @@ class SubbandResUNetPredictor():
         self.v_model = self.reload(v_model_path, Conv8Res(channels=2, target="vocals"), nsrc=2)
         print("Loading other model...")
         self.o_model = self.reload(o_model_path, NO_V_multihead_Conv4(channels=2),stem="other", nsrc=2)
+        if(self.use_gpu):
+            self.v_model = self.v_model.cuda()
+            self.o_model = self.o_model.cuda()
 
     def reload(self, pth:str, model: pl.LightningModule, nsrc: int, stem=None):
         model = model.eval()
@@ -76,6 +88,8 @@ class SubbandResUNetPredictor():
         ).eval()
 
     def sep(self, x, type: str):
+        if(self.use_gpu):
+            x = x.cuda()
         if("vocals" in type):
             return self.v_model(x, type=type), type
         elif("other" in type):
@@ -115,8 +129,7 @@ class SubbandResUNetPredictor():
 
     def prediction(self, mixture_file_path, bass_file_path, drums_file_path, other_file_path, vocals_file_path):
         """Perform prediction."""
-        print("Mixture file is present at following location: %s" % mixture_file_path)
-
+        # print("Mixture file is present at following location: %s" % mixture_file_path)
         x, rate = sf.read(mixture_file_path)  # (12002484, 2) mixture is stereo with sample rate of 44.1kHz
         if(len(x.shape) == 1):
             print("Warning: Processing audio with only one channel")
@@ -127,15 +140,16 @@ class SubbandResUNetPredictor():
         segments_v, seg_length_v = self.divide(x, threads=2)
 
         proc = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
-            executor.submit(self.demucs.prediction,mixture_file_path,bass_file_path, drums_file_path, other_file_path, vocals_file_path)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+            p = executor.submit(self.demucs.prediction,mixture_file_path,bass_file_path, drums_file_path, other_file_path, vocals_file_path)
+            proc.append(p)
             for type in ["vocals","other"]:
                 for i in range(len(segments_v)):
                     p = executor.submit(self.sep, segments_v[i], type+"_"+str(i))
                     proc.append(p)
         res = {}
 
-        for f in concurrent.futures.as_completed(proc):
+        for i, f in enumerate(concurrent.futures.as_completed(proc)):
             result, t = f.result()
             result = post(result)
             res[t] = result

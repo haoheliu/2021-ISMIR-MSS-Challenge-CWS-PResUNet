@@ -23,6 +23,7 @@
 # in this repository, and add it to the repo (Make sure you setup git lfs!)
 # Then, to load the model, see instructions in `prediction_setup()` hereafter.
 import sys
+import time
 
 import torch.hub
 import torch
@@ -32,12 +33,18 @@ from demucs import pretrained
 from demucs.utils import apply_model, load_model  # noqa
 
 class DemucsPredictor():
+
+    def __init__(self, use_gpu=True):
+        self.use_gpu = use_gpu
+
     def prediction_setup(self):
         torch.hub.set_dir('./utils/demucs_checkpoints')
         model = 'demucs'
         print("Loading demucs model...",)
         self.separator = pretrained.load_pretrained(model)
         self.separator.eval()
+        if(self.use_gpu):
+            self.separator = self.separator.cuda()
 
     def prediction(
         self,
@@ -60,6 +67,7 @@ class DemucsPredictor():
 
         # Separate
         with torch.no_grad():
+            if(self.use_gpu): mix = mix.cuda()
             estimates = apply_model(self.separator, mix, shifts=1)
         estimates = estimates * std + mean
 
@@ -75,9 +83,7 @@ class DemucsPredictor():
             if mx >= 1:
                 print('clipping', target, mx, std)
             source = source.clamp(-0.99, 0.99)
+            if(source.is_cuda):
+                source = source.detach().cpu()
             ta.save(str(path), source, sample_rate=sr)
-
-if __name__ == "__main__":
-    submission = DemucsPredictor()
-    submission.run()
-    print("Successfully generated predictions!")
+        return None, "bass_and_drums"

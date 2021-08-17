@@ -38,13 +38,18 @@ pip3 install -r requirements.txt # install requirements
 You'd better have *wget* and *unzip* command installed so that to download pretrained models and unzip them.
 
 ### 1.2 Use pretrained model
-To use the pretrained model to conduct music source separation. You can run the following demo. If it's the first time you run this program, it will automatically download the pretrained models.
+To use the pretrained model to conduct music source separation. You can run the following demos. If it's the first time you run this program, it will automatically download the pretrained models.
 
 ```shell
-# <input-wav-file-path> is the .wav file to be separated
+# <input-wav-file-path> is the .wav file to be separated or a folder containing all .wav mixtures.
 # <output-path-dir> is the folder to store the separation results 
 # python3 main.py -i <input-wav-file-path> -o <output-path-dir>
+# Separate a single file
 python3 main.py -i example/test/zeno_sign_stereo.wav -o example/results
+# Separate all the files in a folder
+python3 main.py -i example/test/ -o example/results
+# Use GPU Acceleration
+python3 main.py -i example/test/zeno_sign_stereo.wav -o example/results --cuda
 ```
 Each pretrained model in this repo take us approximately two days on 8 V100 GPUs to train.
 
