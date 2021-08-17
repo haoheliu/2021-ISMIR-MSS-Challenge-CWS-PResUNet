@@ -58,3 +58,4 @@ if __name__ == '__main__':
                 vocals_file_path=vocals, bass_file_path=bass, drums_file_path=drums, other_file_path=other)
             pbar.update(int((i / (len(files) - 1)) * 100))
 
+    print("Prediction Success")

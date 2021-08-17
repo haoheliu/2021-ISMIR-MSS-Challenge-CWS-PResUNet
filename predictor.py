@@ -167,5 +167,5 @@ class SubbandResUNetPredictor():
             if (not os.path.exists(vocals_file_path)): continue
             break
 
-        print("%s: prediction completed." % mixture_file_path)
+        # print("%s: prediction completed." % mixture_file_path)
 
