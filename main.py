@@ -55,6 +55,7 @@ if __name__ == '__main__':
         for i, file in enumerate(files):
             if(not file[-3:] == "wav" and not file[-4:] == "flac"):
                 print("Ignore file",file," unsupported file type. Please use wav or flac format.")
+                continue
             output_path = os.path.join(args.output_path, os.path.splitext(os.path.basename(file))[0])
             if (not os.path.exists(output_path)):
                 os.makedirs(output_path, exist_ok=True)
@@ -69,6 +70,6 @@ if __name__ == '__main__':
                 print("Perform wiener filter")
                 filt(os.path.join(args.input_file_path,file), bass, drums, other, vocals)
                 print("Complete")
-            pbar.update(int((i / (len(files) - 1)) * 100))
+            pbar.update(int((i / (len(files))) * 100))
 
     print("Prediction Success")
