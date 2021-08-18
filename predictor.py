@@ -11,7 +11,7 @@ from models.resunet_joint_training_other.model import UNetResComplex_100Mb as NO
 from demucs_predictor import DemucsPredictor
 from utils.overlapadd_singlethread_exclude_vocal import LambdaOverlapAdd as Exclude_Vocal_LambdaOverlapAdd
 from utils.overlapadd_singlethread import LambdaOverlapAdd
-
+from utils.filtering import delete_band
 MARGIN = int(44100*1.5)
 
 def divide_stems(data):
@@ -174,6 +174,7 @@ class SubbandResUNetPredictor():
         if ("other" in self.sources):
             other = self.trim_and_concatenate(res,key="other",seg_length=seg_length_v)
             sf.write(other_file_path, other, rate)
+            delete_band(other_file_path)
         if ("vocals" in self.sources):
             vocals = self.trim_and_concatenate(res,key="vocals",seg_length=seg_length_v)
             sf.write(vocals_file_path, vocals, rate)

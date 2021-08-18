@@ -8,7 +8,17 @@ import soundfile as sf
 import os
 import librosa
 import numpy as np
+from utils.file_io import save_wave
 
+def delete_band(file = "/Users/admin/Downloads/xuemaojiao 3/other.wav"):
+    def proc_channel(samples):
+        stft = librosa.stft(samples)
+        stft[495:525, ...] *= 0
+        return librosa.istft(stft)
+    samples,_ = librosa.load(file,sr=44100,mono=False)
+    samples[0,...] = proc_channel(samples[0,...])
+    samples[1, ...] = proc_channel(samples[1, ...])
+    save_wave(samples,fname=file,sample_rate=44100)
 
 def atan2(y, x):
     r"""Element-wise arctangent function of y/x.
@@ -536,7 +546,7 @@ def filt(mixture_file_path, bass_file_path, drums_file_path, other_file_path, vo
     sf.write(file=vocals_file_path,data=vocals.numpy().T,samplerate=44100)
     sf.write(file=other_file_path,data=other.numpy().T,samplerate=44100)
 
-if __name__ == "__main__":
-    filt_single_channel("/home/liuhaohe.7/Real_Recording_haohe_distance_test_clip.wav")
+# if __name__ == "__main__":
+#     filt_single_channel("/home/liuhaohe.7/Real_Recording_haohe_distance_test_clip.wav")
 
 
