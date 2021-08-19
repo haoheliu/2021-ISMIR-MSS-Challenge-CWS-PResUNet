@@ -346,13 +346,13 @@ class UNetResComplex_100Mb(pl.LightningModule):
 
             wav_out = self.f_helper.mag_phase_subband_spectrogram_to_wav(sps=mag,coss = cos_out,sins=sin_out,length=length)
 
-            # This part is added after the competition
-            ###############################################################################
-            length = wav_out.size()[-1]
-            mag,cos,sin = self.f_helper.wav_to_spectrogram_phase(wav_out)
-            mag[:,:,:,495:525] *= 0
-            wav_out = self.f_helper.spectrogram_phase_to_wav(mag,cos,sin,length=length)
-            ###############################################################################
+            # # This part is added after the competition
+            # ###############################################################################
+            # length = wav_out.size()[-1]
+            # mag,cos,sin = self.f_helper.wav_to_spectrogram_phase(wav_out)
+            # mag[:,:,:,495:525] *= 0
+            # wav_out = self.f_helper.spectrogram_phase_to_wav(mag,cos,sin,length=length)
+            # ###############################################################################
 
             pad_tail = input.size()[-1]-wav_out.size()[-1]
             wav_out = F.pad(wav_out,(0,pad_tail))
