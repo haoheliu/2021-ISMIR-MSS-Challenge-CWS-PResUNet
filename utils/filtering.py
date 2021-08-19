@@ -9,16 +9,19 @@ import os
 import librosa
 import numpy as np
 from utils.file_io import save_wave
+from scipy import signal
 
 def delete_band(file = "/Users/admin/Downloads/xuemaojiao 3/other.wav"):
-    def proc_channel(samples):
-        length = samples.shape[0]
-        stft = librosa.stft(samples)
-        stft[495:525, ...] *= 0
-        return librosa.istft(stft,length=length)
+    def filter_data(data, order=10):
+        nyq = 0.5 * 44100
+        low = 10648 / nyq
+        high = 11294 / nyq
+        b, a = signal.butter(order, [low, high], 'bandpass')
+        filtedData = signal.filtfilt(b, a, data)
+        return filtedData
     samples,_ = librosa.load(file,sr=44100,mono=False)
-    samples[0,...] = proc_channel(samples[0,...])
-    samples[1, ...] = proc_channel(samples[1, ...])
+    samples[0,...] = filter_data(samples[0,...])
+    samples[1, ...] = filter_data(samples[1, ...])
     save_wave(samples,fname=file,sample_rate=44100)
 
 def atan2(y, x):
