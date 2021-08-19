@@ -61,7 +61,7 @@ python3 main.py -i example/test/zeno_sign_stereo.wav -o example/results -s vocal
 python3 main.py -i example/test/ -o example/results
 # Use GPU Acceleration
 python3 main.py -i example/test/zeno_sign_stereo.wav -o example/results --cuda
-# Separate all the files in a folder using GPU and wiener filtering post processing
+# Separate all the files in a folder using GPU and wiener filtering post processing (may introduce new distortions, make the results even worse.)
 python3 main.py -i example/test -o example/results --cuda --wiener
 ```
 Each pretrained model in this repo take us approximately two days on 8 V100 GPUs to train.

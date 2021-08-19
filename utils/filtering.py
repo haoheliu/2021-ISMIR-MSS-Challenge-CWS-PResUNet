@@ -12,9 +12,10 @@ from utils.file_io import save_wave
 
 def delete_band(file = "/Users/admin/Downloads/xuemaojiao 3/other.wav"):
     def proc_channel(samples):
+        length = samples.shape[0]
         stft = librosa.stft(samples)
         stft[495:525, ...] *= 0
-        return librosa.istft(stft)
+        return librosa.istft(stft,length=length)
     samples,_ = librosa.load(file,sr=44100,mono=False)
     samples[0,...] = proc_channel(samples[0,...])
     samples[1, ...] = proc_channel(samples[1, ...])

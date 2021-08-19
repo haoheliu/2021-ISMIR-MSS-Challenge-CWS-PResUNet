@@ -173,10 +173,12 @@ class SubbandResUNetPredictor():
 
         if ("other" in self.sources):
             other = self.trim_and_concatenate(res,key="other",seg_length=seg_length_v)
+            os.makedirs(other_file_path,exist_ok=True)
             sf.write(other_file_path, other, rate)
             delete_band(other_file_path)
         if ("vocals" in self.sources):
             vocals = self.trim_and_concatenate(res,key="vocals",seg_length=seg_length_v)
+            os.makedirs(vocals_file_path, exist_ok=True)
             sf.write(vocals_file_path, vocals, rate)
 
 
