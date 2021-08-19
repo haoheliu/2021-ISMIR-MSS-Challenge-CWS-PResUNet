@@ -16,7 +16,7 @@ def delete_band(file = "/Users/admin/Downloads/xuemaojiao 3/other.wav"):
         nyq = 0.5 * 44100
         low = 10648 / nyq
         high = 11294 / nyq
-        b, a = signal.butter(order, [low, high], 'bandpass')
+        b, a = signal.butter(order, [low, high], 'bandstop')
         filtedData = signal.filtfilt(b, a, data)
         return filtedData
     samples,_ = librosa.load(file,sr=44100,mono=False)
