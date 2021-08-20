@@ -49,7 +49,7 @@ python3 main -i <input-wav-file-path/folder>
              -o <output-path-dir> 
              -s <sources-to-separate>  # vocals bass drums other (all four stems by default)
              --cuda  # if wanna use GPU, use this flag
-             --wiener  # if wanna use wiener filtering, use this flag. 
+             # --wiener  # if wanna use wiener filtering, use this flag. 
              # '--wiener' can take effect only when separation of all four tracks are done or you separate four tracks at the same time.
              
 # <input-wav-file-path> is the .wav file to be separated or a folder containing all .wav mixtures.
@@ -62,7 +62,7 @@ python3 main.py -i example/test/ -o example/results
 # Use GPU Acceleration
 python3 main.py -i example/test/zeno_sign_stereo.wav -o example/results --cuda
 # Separate all the files in a folder using GPU and wiener filtering post processing (may introduce new distortions, make the results even worse.)
-python3 main.py -i example/test -o example/results --cuda --wiener
+python3 main.py -i example/test -o example/results --cuda # --wiener
 ```
 Each pretrained model in this repo take us approximately two days on 8 V100 GPUs to train.
 
