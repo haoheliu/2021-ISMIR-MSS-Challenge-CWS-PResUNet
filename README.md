@@ -4,6 +4,8 @@
 
 Here is the package **torchsubband** I wrote for subband decomposition.
 
+> https://github.com/haoheliu/torchsubband
+
 # Music Source Separation with Channel-wise Subband Phase Aware ResUnet (CWS-PResUNet)
 
 ![ranking](pics/demo.png)
