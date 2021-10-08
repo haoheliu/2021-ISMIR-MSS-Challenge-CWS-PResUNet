@@ -1,5 +1,17 @@
 # [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1E2yJLWN8MH6GJUw15cj490E2BaeAcGie?usp=sharing)
 
+  * [Introduction](#introduction)
+  * [1. Usage (For MSS)](#1-usage--for-mss-)
+    + [1.1 Prepare running environment](#11-prepare-running-environment)
+    + [1.2 Use pretrained model](#12-use-pretrained-model)
+    + [1.3 Train new MSS models from scratch](#13-train-new-mss-models-from-scratch)
+      - [1.3.1 How to train](#131-how-to-train)
+      - [1.3.2 Use the model you trained](#132-use-the-model-you-trained)
+    + [1.4 Model Evaluation](#14-model-evaluation)
+  * [2. Usage (For customizing sound source)](#2-usage--for-customizing-sound-source-)
+  * [3. todo](#3-todo)
+  * [4. Reference](#4-reference)
+  
 # Update on 2021.09
 
 Here is the package **torchsubband** I wrote for subband decomposition.
@@ -170,7 +182,7 @@ This feature allows you to separate an arbitrary sound source as long as you got
 
 **Step2: Organize your data**
 
-I assume that you have already got the following two kinds of data:
+I assume that you have already got the following two kinds of data (there are sample datas in this repo):
 1. the_source_you_want_to_get
 2. the_source_you_want_to_remove
 
@@ -202,11 +214,7 @@ source models/resunet_conv1_vocals/run.sh
 
 Log file will be automatic generated. You can check validation results during training, which update every two epoches.
 
-Note: You can upload validation data as mixture-silent so that to perform separation. 
-
-
-
-
+Note: You can upload validation data as real_mixture + silent so that to perform separation on real test data. 
 
 
 ## 3. todo
