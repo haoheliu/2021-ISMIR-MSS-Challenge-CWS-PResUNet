@@ -5,6 +5,8 @@ from torch.utils.data import Dataset
 from models.dataloader.utils import *
 import os
 
+HOURS_FOR_A_EPOCH=100
+
 class INDIVIDUAL_LOADER(Dataset):
     '''
         {
@@ -106,4 +108,4 @@ class INDIVIDUAL_LOADER(Dataset):
 
     def __len__(self):
         # A Epoch = every 100 hours of datas
-        return int(3600*100 / self.frame_length)
+        return int(3600*HOURS_FOR_A_EPOCH / self.frame_length)

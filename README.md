@@ -171,6 +171,8 @@ For faster evalution, you can adjust the parameter *MAX_THREAD* insides the *eva
 
 This feature allows you to separate an arbitrary sound source as long as you got enough training data.
 
+[This colab](https://colab.research.google.com/drive/1dy_cKt--oUUGtr44TI-0Oq-gxjqY4uw-?usp=sharing) demonstrates the following procedure.
+
 **Step1: Prepare running environment.**
 ```shell script
 ! git clone https://github.com/haoheliu/2021-ISMIR-MSS-Challenge-CWS-PResUNet.git
@@ -182,7 +184,7 @@ This feature allows you to separate an arbitrary sound source as long as you got
 
 **Step2: Organize your data**
 
-I assume that you have already got the following two kinds of data (there are sample datas in this repo):
+I assume that you have already got the following two kinds of data (there are sample datas in this repo when you clone it):
 1. the_source_you_want_to_get
 2. the_source_you_want_to_remove
 
@@ -214,7 +216,9 @@ source models/resunet_conv1_vocals/run.sh
 
 Log file will be automatic generated. You can check validation results during training, which update every two epoches.
 
-Note: You can upload validation data as real_mixture + silent so that to perform separation on real test data. 
+Hints: 
+- To perform separation on real test data, you can upload validation data as real_mixture + silent.
+- To make an epoch shorter, you can modify the parameter HOURS_FOR_A_EPOCH inside models/dataloader/loaders/individual_loader.py. 
 
 
 ## 3. todo
