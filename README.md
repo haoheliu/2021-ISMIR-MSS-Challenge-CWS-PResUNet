@@ -32,7 +32,7 @@ For bass and drums separation, we directly use [the open-sourced demucs model](h
 
 [comment]: <> (4. Since our final bass and drums score is still low. We directly use the open-source demucs model as the final submission for these two tracks.)
 
-## 1. Usage
+## 1. Usage (For MSS)
 ### 1.1 Prepare running environment
 First you need to clone this repo:
 ```shell
@@ -73,7 +73,7 @@ python3 main.py -i example/test -o example/results --cuda # --wiener
 ```
 Each pretrained model in this repo take us approximately two days on 8 V100 GPUs to train.
 
-### 1.3 Train new models from scratch
+### 1.3 Train new MSS models from scratch
 
 #### 1.3.1 How to train
 
@@ -154,12 +154,67 @@ The system will save the overall score and the score for each song in the result
 
 For faster evalution, you can adjust the parameter *MAX_THREAD* insides the *evaluator/eval.py* to determine how many threads you gonna use. It's value should fit your computer resources. You can start with *MAX_THREAD=3* and then try 6, 10 or 16. 
 
-## 2. todo
+
+## 2. Usage (For customizing sound source)
+
+This feature allows you to separate an arbitrary sound source as long as you got enough training data.
+
+**Step1: Prepare running environment.**
+```shell script
+! git clone https://github.com/haoheliu/2021-ISMIR-MSS-Challenge-CWS-PResUNet.git
+# MAKE SURE SOX IS INSTALLED
+#!apt-get install libsox-fmt-all libsox-dev sox > /dev/null
+%cd 2021-ISMIR-MSS-Challenge-CWS-PResUNet
+! pip3 install -r requirements.txt
+```
+
+**Step2: Organize your data**
+
+I assume that you have already got the following two kinds of data:
+1. the_source_you_want_to_get
+2. the_source_you_want_to_remove
+
+- Split and put these data into *data/your_data* folder: 
+    - *train*(about 90%~99%): training data (used during training)
+        - *the_source_you_want_to_get*: put your target source (the source you'd like to separate out) audios into this folder
+        - *the_source_you_want_to_remove*: put undesired sources audios into this folder 
+    - *test*(about 1%~10%): testing data (used during validation, every two epoches)
+        - *the_source_you_want_to_get*
+        - *the_source_you_want_to_remove*
+- Then run:
+```shell script
+# Automatic parsing your data
+source init_your_data.sh
+```
+
+**Step3: Start training!**
+- Use the same MSS model
+
+```shell script
+source models/resunet_conv8_vocals/run.sh
+```
+This script use 8 gpus with 8 batchsize by default. You may need to modify this run.sh to fit in your machine.
+
+- Use a smaller model (1/8)
+```shell script
+source models/resunet_conv1_vocals/run.sh
+```
+
+Log file will be automatic generated. You can check validation results during training, which update every two epoches.
+
+Note: You can upload validation data as mixture-silent so that to perform separation. 
+
+
+
+
+
+
+## 3. todo
 
 - [x] Open-source the training pipline (before 2021-08-20)
-- [ ] Write a report paper about my findings in this MSS Challenge (before 2021-08-31)
+- [ ] Write a report paper about my findings in this MSS Challenge (before 2021-10-22)
 
-## 3. Reference
+## 4. Reference
 
 If you find our code useful for your research, please consider citing:
 

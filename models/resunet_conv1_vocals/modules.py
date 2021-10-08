@@ -109,55 +109,6 @@ class DecoderBlock(nn.Module):
         return x
 
 
-class EncoderBlockRes1(nn.Module):
-    def __init__(self, in_channels, out_channels, downsample, activation, momentum):
-        super(EncoderBlockRes1, self).__init__()
-        size = 3
-
-        self.conv_block1 = ConvBlockRes(in_channels, out_channels, size, activation, momentum)
-        self.downsample = downsample
-
-    def forward(self, x):
-        encoder = self.conv_block1(x)
-        encoder_pool = F.avg_pool2d(encoder, kernel_size=self.downsample)
-        return encoder_pool, encoder
-
-
-class DecoderBlockRes1(nn.Module):
-    def __init__(self, in_channels, out_channels, stride, activation, momentum):
-        super(DecoderBlockRes1, self).__init__()
-        size = 3
-        self.activation = activation
-        self.stride = stride
-
-        self.conv1 = torch.nn.ConvTranspose2d(in_channels=in_channels,
-            out_channels=out_channels, kernel_size=(size, size), stride=stride,
-            padding=(0, 0), output_padding=(0, 0), bias=False, dilation=(1, 1))
-
-        self.bn1 = nn.BatchNorm2d(in_channels)
-        self.conv_block2 = ConvBlockRes(out_channels * 2, out_channels, size, activation, momentum)
-
-    def init_weights(self):
-        init_layer(self.conv1)
-
-    def prune(self, x):
-        """Prune the shape of x after transpose convolution.
-        """
-        if self.stride == (1, 2):
-            x = x[:, :, 1 : -1, 0 : - 1]
-        else:
-            x = x[:, :, 0 : - 1, 0 : - 1]
-        return x
-
-    def forward(self, input_tensor, concat_tensor):
-        x = self.conv1(F.relu_(self.bn1(input_tensor)))
-        x = self.prune(x)
-        # print(self.stride, x.shape, concat_tensor.shape)
-        x = torch.cat((x, concat_tensor), dim=1)
-        x = self.conv_block2(x)
-        return x
-
-
 class EncoderBlockRes8(nn.Module):
     def __init__(self, in_channels, out_channels, downsample, activation, momentum):
         super(EncoderBlockRes8, self).__init__()
