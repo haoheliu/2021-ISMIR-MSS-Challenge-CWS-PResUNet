@@ -300,6 +300,10 @@ class UNetResComplex_100Mb(pl.LightningModule):
             elif (self.target == "vocals"): acc = batch['acc']
             else: acc = None
             vocal, acc = vocal.float().permute(0, 2, 1), acc.float().permute(0, 2, 1)
+            if(acc.size()[-1] != vocal.size()[-1]):
+                min_length = min(acc.size()[-1], vocal.size()[-1])
+                acc = acc[...,:min_length]
+                vocal = vocal[..., :min_length]
             mixture = acc + vocal
             return vocal, acc, mixture, batch['fname'][0]  # a sample for a batch
 

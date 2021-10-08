@@ -184,30 +184,35 @@ def read_wave(fname,
 
 
 def get_channels_sampwidth_and_sample_rate(fname):
+    if (os.path.islink(fname)): fname = os.readlink(fname)
     with wave.open(fname) as f:
         params = f.getparams()
     return params[0], params[1], params[2]  # == (2,2,44100),(params[0],params[1],params[2])
 
 
 def get_channels(fname):
+    if (os.path.islink(fname)): fname = os.readlink(fname)
     with wave.open(fname) as f:
         params = f.getparams()
     return params[0]
 
 
 def get_sample_rate(fname):
+    if (os.path.islink(fname)): fname = os.readlink(fname)
     with wave.open(fname) as f:
         params = f.getparams()
     return params[2]
 
 
 def get_duration(fname):
+    if (os.path.islink(fname)): fname = os.readlink(fname)
     with wave.open(fname) as f:
         params = f.getparams()
     return params[3] / params[2]
 
 
 def get_framesLength(fname):
+    if(os.path.islink(fname)): fname = os.readlink(fname)
     with wave.open(fname) as f:
         params = f.getparams()
     return params[3]
