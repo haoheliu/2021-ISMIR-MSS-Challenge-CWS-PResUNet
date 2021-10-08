@@ -184,9 +184,9 @@ This feature allows you to separate an arbitrary sound source as long as you got
 
 **Step2: Organize your data**
 
-I assume that you have already got the following two kinds of data (there are sample datas in this repo when you clone it):
-1. the_source_you_want_to_get
-2. the_source_you_want_to_remove
+I assume that you have already got the following two disjoint kinds of data (there are sample datas in this repo when you clone it):
+1. the_source_you_want_to_get (for example, speech data)
+2. the_source_you_want_to_remove (for example, noise data)
 
 - Split and put these data into *data/your_data* folder: 
     - *train*(about 90%~99%): training data (used during training)
