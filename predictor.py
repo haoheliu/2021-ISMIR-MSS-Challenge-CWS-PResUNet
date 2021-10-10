@@ -12,6 +12,9 @@ from demucs_predictor import DemucsPredictor
 from utils.overlapadd_singlethread_exclude_vocal import LambdaOverlapAdd as Exclude_Vocal_LambdaOverlapAdd
 from utils.overlapadd_singlethread import LambdaOverlapAdd
 from utils.filtering import delete_band
+import logging
+
+
 MARGIN = int(44100*1.5)
 
 def divide_stems(data):
@@ -176,17 +179,21 @@ class SubbandResUNetPredictor():
                     result = post(result)
                     res[t] = result
 
-                if ("other" in self.sources):
+                if (not os.path.exists(other_file_path) and "other" in self.sources):
                     other = self.trim_and_concatenate(res,key="other",seg_length=seg_length_v)
                     sf.write(other_file_path, other, rate)
                     # delete_band(other_file_path)
-                if ("vocals" in self.sources):
+                if (not os.path.exists(vocals_file_path) and "vocals" in self.sources):
                     vocals = self.trim_and_concatenate(res,key="vocals",seg_length=seg_length_v)
                     sf.write(vocals_file_path, vocals, rate)
-            except:
+                break
+            except Exception as e:
+                logging.exception(e)
                 counter += 1
-                print("Don't worry, prediction encounter some errors. Retrying for the "+str(counter)+" time.")
-                continue
-            break
+                if(counter>2): raise Exception(e)
+                else:
+                    print("Retrying",e)
+                    continue
+
 
 
