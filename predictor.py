@@ -163,7 +163,7 @@ class SubbandResUNetPredictor():
                 proc = []
                 with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
                     if("bass" in self.sources or "drums" in self.sources):
-                        if(not os.path.exists(bass_file_path) and os.path.exists(drums_file_path)):
+                        if(not (os.path.exists(bass_file_path) and os.path.exists(drums_file_path))):
                             p = executor.submit(self.demucs.prediction,mixture_file_path,bass_file_path, drums_file_path, other_file_path, vocals_file_path)
                             proc.append(p)
                     for type in self.sources:
