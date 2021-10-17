@@ -46,7 +46,7 @@ class INDIVIDUAL_LOADER(Dataset):
             self.acc = ['no_other','drums','bass',"vocals"]
             self.voc = target
         else:
-            raise ValueError("Erorr: Undefined target type "+target)
+            raise ValueError("Error: Undefined target type "+target)
 
         self.init_processes = []
         self.overlap_num = overlap_num
