@@ -12,6 +12,9 @@ from demucs_predictor import DemucsPredictor
 from utils.overlapadd_singlethread_exclude_vocal import LambdaOverlapAdd as Exclude_Vocal_LambdaOverlapAdd
 from utils.overlapadd_singlethread import LambdaOverlapAdd
 from utils.filtering import delete_band
+import logging
+
+
 MARGIN = int(44100*1.5)
 
 def divide_stems(data):
@@ -146,37 +149,51 @@ class SubbandResUNetPredictor():
     def prediction(self, mixture_file_path, bass_file_path, drums_file_path, other_file_path, vocals_file_path):
         """Perform prediction."""
         # print("Mixture file is present at following location: %s" % mixture_file_path)
-        x, rate = sf.read(mixture_file_path)  # (12002484, 2) mixture is stereo with sample rate of 44.1kHz
-        if(len(x.shape) == 1):
-            print("Warning: Processing audio with only one channel")
-            x = np.concatenate([x[...,None],x[...,None]],axis=1)
-        if (x.shape[1] == 1):
-            x = np.concatenate([x[...], x[...]], axis=1)
+        counter = 0
+        while(True):
+            try:
+                x, rate = sf.read(mixture_file_path)  # (12002484, 2) mixture is stereo with sample rate of 44.1kHz
+                if(len(x.shape) == 1):
+                    print("Warning: Processing audio with only one channel")
+                    x = np.concatenate([x[...,None],x[...,None]],axis=1)
+                if (x.shape[1] == 1):
+                    x = np.concatenate([x[...], x[...]], axis=1)
 
-        segments_v, seg_length_v = self.divide(x, threads=2)
-        proc = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
-            if("bass" in self.sources or "drums" in self.sources):
-                p = executor.submit(self.demucs.prediction,mixture_file_path,bass_file_path, drums_file_path, other_file_path, vocals_file_path)
-                proc.append(p)
-            for type in self.sources:
-                if(type == "bass" or type == "drums"): continue # skip, use demucs for these two sources
-                for i in range(len(segments_v)):
-                    p = executor.submit(self.sep, segments_v[i], type+"_"+str(i))
-                    proc.append(p)
-        res = {}
+                segments_v, seg_length_v = self.divide(x, threads=2)
+                proc = []
+                with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+                    if("bass" in self.sources or "drums" in self.sources):
+                        if(not (os.path.exists(bass_file_path) and os.path.exists(drums_file_path))):
+                            p = executor.submit(self.demucs.prediction,mixture_file_path,bass_file_path, drums_file_path, other_file_path, vocals_file_path)
+                            proc.append(p)
+                    for type in self.sources:
+                        if(type == "bass" or type == "drums"): continue # skip, use demucs for these two sources
+                        if(type == "vocals" and os.path.exists(vocals_file_path)): continue
+                        if(type == "other" and os.path.exists(other_file_path)): continue
+                        for i in range(len(segments_v)):
+                            p = executor.submit(self.sep, segments_v[i], type+"_"+str(i))
+                            proc.append(p)
+                res = {}
+                for i, f in enumerate(concurrent.futures.as_completed(proc)):
+                    result, t = f.result()
+                    result = post(result)
+                    res[t] = result
 
-        for i, f in enumerate(concurrent.futures.as_completed(proc)):
-            result, t = f.result()
-            result = post(result)
-            res[t] = result
+                if (not os.path.exists(other_file_path) and "other" in self.sources):
+                    other = self.trim_and_concatenate(res,key="other",seg_length=seg_length_v)
+                    sf.write(other_file_path, other, rate)
+                    # delete_band(other_file_path)
+                if (not os.path.exists(vocals_file_path) and "vocals" in self.sources):
+                    vocals = self.trim_and_concatenate(res,key="vocals",seg_length=seg_length_v)
+                    sf.write(vocals_file_path, vocals, rate)
+                break
+            except Exception as e:
+                logging.exception(e)
+                counter += 1
+                if(counter>2): raise Exception(e)
+                else:
+                    print("Retrying",e)
+                    continue
 
-        if ("other" in self.sources):
-            other = self.trim_and_concatenate(res,key="other",seg_length=seg_length_v)
-            sf.write(other_file_path, other, rate)
-            # delete_band(other_file_path)
-        if ("vocals" in self.sources):
-            vocals = self.trim_and_concatenate(res,key="vocals",seg_length=seg_length_v)
-            sf.write(vocals_file_path, vocals, rate)
 
 
