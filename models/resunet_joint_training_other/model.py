@@ -444,7 +444,9 @@ class UNetResComplex_100Mb(pl.LightningModule):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
         self.log("val_loss", avg_loss, on_step=False, on_epoch=True, logger=True, sync_dist=True)
 
-
+if __name__ == '__main__':
+    model = UNetResComplex_100Mb(channels=1)
+    print(model)
 
 
 

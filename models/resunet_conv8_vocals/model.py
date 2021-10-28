@@ -345,3 +345,6 @@ class UNetResComplex_100Mb(pl.LightningModule):
         self.log("val_loss", avg_loss, on_step=False, on_epoch=True, logger=True, sync_dist=True)
 
 
+if __name__ == '__main__':
+    model = UNetResComplex_100Mb(channels=2, target="vocals")
+    print(model)

@@ -223,8 +223,8 @@ Hints:
 
 ## 3. todo
 
-- [x] Open-source the training pipline (before 2021-08-20)
-- [ ] Write a report paper about my findings in this MSS Challenge (before 2021-10-22)
+- [✅] Open-source the training pipline (before 2021-08-20)
+- [✅] Write a report paper about my findings in this MSS Challenge (before 2021-10-22)
 
 ## 4. Reference
 
