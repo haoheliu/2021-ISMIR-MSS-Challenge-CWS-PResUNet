@@ -30,7 +30,8 @@ import torch
 import torchaudio as ta
 
 from demucs import pretrained
-from demucs.utils import apply_model, load_model  # noqa
+from demucs.states import load_model  # noqa
+from demucs.apply import apply_model
 
 class DemucsPredictor():
 
