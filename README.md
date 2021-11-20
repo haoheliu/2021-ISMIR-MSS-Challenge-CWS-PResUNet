@@ -9,8 +9,7 @@
       - [1.3.2 Use the model you trained](#132-use-the-model-you-trained)
     + [1.4 Model Evaluation](#14-model-evaluation)
   * [2. Usage (For customizing sound source)](#2-usage--for-customizing-sound-source-)
-  * [3. todo](#3-todo)
-  * [4. Reference](#4-reference)
+  * [3. Reference](#3-reference)
   
 # Update on 2021.09
 
@@ -220,13 +219,7 @@ Hints:
 - To perform separation on real test data, you can upload validation data as real_mixture + silent.
 - To make an epoch shorter, you can modify the parameter HOURS_FOR_A_EPOCH inside models/dataloader/loaders/individual_loader.py. 
 
-
-## 3. todo
-
-- [✅] Open-source the training pipline (before 2021-08-20)
-- [✅] Write a report paper about my findings in this MSS Challenge (before 2021-10-22)
-
-## 4. Reference
+## 3. Reference
 
 If you find our code useful for your research, please consider citing:
 
@@ -239,7 +232,11 @@ If you find our code useful for your research, please consider citing:
 >      doi={10.21437/Interspeech.2020-2555},   
 >      url={http://dx.doi.org/10.21437/Interspeech.2020-2555}   
 >    }.
+>
 
 
+## 4. Change log
+
+2021-11-20: Update the demucs version. Now I directly use the [mdx version demucs](https://github.com/facebookresearch/demucs) in this repo to separate bass and drums.
 
 
