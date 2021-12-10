@@ -223,26 +223,28 @@ Hints:
 
 If you find our code useful for your research, please consider citing:
 
-> @misc{liu2021cwspresunet,    
->    title={CWS-PResUNet: Music Source Separation with Channel-wise Subband Phase-aware ResUNet},    
->    author={Haohe Liu and Qiuqiang Kong and Jiafeng Liu},    
->    year={2021},    
->    eprint={2112.04685},    
->    archivePrefix={arXiv},    
->    primaryClass={cs.SD}   
->}.  
 
+```bib
 
->    @inproceedings{Liu2020,   
->      author={Haohe Liu and Lei Xie and Jian Wu and Geng Yang},   
->      title={{Channel-Wise Subband Input for Better Voice and Accompaniment Separation on High Resolution Music}},   
->      year=2020,   
->      booktitle={Proc. Interspeech 2020},   
->      pages={1241--1245},   
->      doi={10.21437/Interspeech.2020-2555},   
->      url={http://dx.doi.org/10.21437/Interspeech.2020-2555}   
->    }.
->
+@misc{liu2021cwspresunet,
+    title={CWS-PResUNet: Music Source Separation with Channel-wise Subband Phase-aware ResUNet},
+    author={Haohe Liu and Qiuqiang Kong and Jiafeng Liu},
+    year={2021},
+    eprint={2112.04685},
+    archivePrefix={arXiv},
+    primaryClass={cs.SD}
+}
+@inproceedings{Liu2020,   
+  author={Haohe Liu and Lei Xie and Jian Wu and Geng Yang},   
+  title={{Channel-Wise Subband Input for Better Voice and Accompaniment Separation on High Resolution Music}},   
+  year=2020,   
+  booktitle={Proc. Interspeech 2020},   
+  pages={1241--1245},   
+  doi={10.21437/Interspeech.2020-2555},   
+  url={http://dx.doi.org/10.21437/Interspeech.2020-2555}   
+}.
+
+```
 
 
 ## 4. Change log
