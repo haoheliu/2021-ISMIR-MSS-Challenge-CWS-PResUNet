@@ -223,14 +223,14 @@ Hints:
 
 If you find our code useful for your research, please consider citing:
 
-> @misc{liu2021cwspresunet,
->    title={CWS-PResUNet: Music Source Separation with Channel-wise Subband Phase-aware ResUNet},
->    author={Haohe Liu and Qiuqiang Kong and Jiafeng Liu},
->    year={2021},
->    eprint={2112.04685},
->    archivePrefix={arXiv},
->    primaryClass={cs.SD}
->}
+> @misc{liu2021cwspresunet,    
+>    title={CWS-PResUNet: Music Source Separation with Channel-wise Subband Phase-aware ResUNet},    
+>    author={Haohe Liu and Qiuqiang Kong and Jiafeng Liu},    
+>    year={2021},    
+>    eprint={2112.04685},    
+>    archivePrefix={arXiv},    
+>    primaryClass={cs.SD}   
+>}.  
 
 
 >    @inproceedings{Liu2020,   
