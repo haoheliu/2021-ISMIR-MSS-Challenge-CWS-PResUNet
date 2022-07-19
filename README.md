@@ -93,7 +93,7 @@ For the training data:
 - If you have already download musdb18hq, you can put *musdb18hq.zip* or *musdb18hq* folder into the *data*
 folder and run *init.sh* to prepare this dataset.
 ```shell
-source init.sh
+source init_musdb.sh
 ```
 Finally run either of these two commands to start training.
 ```shell
