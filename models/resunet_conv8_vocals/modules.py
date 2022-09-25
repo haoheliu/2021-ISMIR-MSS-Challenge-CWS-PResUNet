@@ -140,18 +140,25 @@ class DecoderBlockRes1(nn.Module):
     def init_weights(self):
         init_layer(self.conv1)
 
-    def prune(self, x):
+    def prune(self, x, target):
         """Prune the shape of x after transpose convolution.
         """
         if self.stride == (1, 2):
             x = x[:, :, 1 : -1, 0 : - 1]
         else:
-            x = x[:, :, 0 : - 1, 0 : - 1]
+            if(abs(x.size(2)-target.size(2)) > 0 and abs(x.size(3)-target.size(3)) > 0):
+                x = x[:, :, 0 : - 1, 0 : - 1]
+            elif(abs(x.size(2)-target.size(2)) > 0 and abs(x.size(3)-target.size(3)) == 0):
+                x = x[:, :, 0 : - 1, :]
+            elif(abs(x.size(2)-target.size(2)) == 0 and abs(x.size(3)-target.size(3)) > 0):
+                x = x[:, :, :, 0 : - 1]
         return x
 
     def forward(self, input_tensor, concat_tensor):
         x = self.conv1(F.relu_(self.bn1(input_tensor)))
-        x = self.prune(x)
+        
+        x = self.prune(x, target=concat_tensor)
+        # print(x.size(), concat_tensor.size())
         # print(self.stride, x.shape, concat_tensor.shape)
         x = torch.cat((x, concat_tensor), dim=1)
         x = self.conv_block2(x)

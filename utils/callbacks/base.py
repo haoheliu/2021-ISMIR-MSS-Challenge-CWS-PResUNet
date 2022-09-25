@@ -93,7 +93,7 @@ class initLogDir(Callback):
         self.init_path(trainer,pl_module)
 
     @rank_zero_only
-    def on_train_epoch_end(self, trainer, pl_module: pl.LightningModule, outputs) -> None:
+    def on_train_epoch_end(self, trainer, pl_module: pl.LightningModule) -> None:
         print("Working Directory:", os.getcwd())
 
 
