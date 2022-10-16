@@ -1,0 +1,39 @@
+####################
+#
+# Example Job for HTCondor
+#
+####################
+
+# --------------------------------------------
+# Executable and its arguments
+executable    = /bin/sh
+arguments = /mnt/fast/nobackup/scratch4weeks/hl01486/project/2021-ISMIR-MSS-Challenge-CWS-PResUNet/models/resunet_conv1_vocals/1_18360.sh $(type)
+log    = condor_log/c$(cluster).p$(process).log
+output = condor_log/c$(cluster).p$(process).out
+error  = condor_log/c$(cluster).p$(process).error
+batch_name=zehua
+
+# -----------------------------------
+# File Transfer, Input, Output
+#should_transfer_files = YES
+#transfer_input_files = catch_signal_test.py
+#when_to_transfer_output = ON_EXIT
+Environment = PYTHONIOENCODING=UTF-8
+# environment = "mount=/vol/research/"
++CanCheckpoint = False
++JobRunTime = 72
++GPUMem = 8000
+# -------------------------------------
+# Requirements for the Job
+requirements = (machine!="nain.eps.surrey.ac.uk") && (CUDADeviceName == "GeForce RTX 2080 Ti") || (CUDADeviceName == "GeForce RTX 3090")
+
+# --------------------------------------
+# Resources
+request_GPUs     = 1
+request_CPUs     = 1
+request_memory = 32G
+# -----------------------------------
+# Queue commands
+# -----------------------------------
+queue 1 type in DoNothing
+# -----------------------------------

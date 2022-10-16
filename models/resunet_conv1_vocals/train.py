@@ -66,7 +66,8 @@ if __name__ == "__main__":
     elif(args.type == "drums"): lr=0.0003
     else:
         lr = None
-
+    # lr=0.0
+    
     check_val_every_n_epoch = 10
     gamma=args.gamma
     batchsize = args.batchsize
@@ -91,7 +92,16 @@ if __name__ == "__main__":
                   warm_up_steps=int(warmup_data * 3600 / seconds_per_step), reduce_lr_steps=int(reduce_lr_period * 3600 / seconds_per_step),  # four gpus !!
                   # datas
                   check_val_every_n_epoch=check_val_every_n_epoch)
-
+    
+    # model.load_from_checkpoint("/mnt/fast/nobackup/scratch4weeks/hl01486/project/2021-ISMIR-MSS-Challenge-CWS-PResUNet/mss_challenge_log/2022-09-25-zehua-vocals/version_1/checkpoints/epoch=29-val_loss=0.3181.ckpt")
+    # model = model.load_from_checkpoint("/mnt/fast/nobackup/scratch4weeks/hl01486/project/2021-ISMIR-MSS-Challenge-CWS-PResUNet/mss_challenge_log/2022-10-04-zehua-vocals/version_1/checkpoints/epoch=19-val_loss=0.3143.ckpt")
+    # model = model.load_from_checkpoint("/mnt/fast/nobackup/scratch4weeks/hl01486/project/2021-ISMIR-MSS-Challenge-CWS-PResUNet/mss_challenge_log/2022-10-04-zehua-vocals/version_1/checkpoints/epoch=29-val_loss=0.3179.ckpt")
+    # model = model.load_from_checkpoint("/mnt/fast/nobackup/scratch4weeks/hl01486/project/2021-ISMIR-MSS-Challenge-CWS-PResUNet/mss_challenge_log/2022-10-04-zehua-vocals/version_1/checkpoints/epoch=59-val_loss=0.3224.ckpt")
+    # model = model.load_from_checkpoint("/mnt/fast/nobackup/scratch4weeks/hl01486/project/2021-ISMIR-MSS-Challenge-CWS-PResUNet/mss_challenge_log/2022-10-04-zehua-vocals/version_1/checkpoints/epoch=109-val_loss=0.3259.ckpt")
+    model = model.load_from_checkpoint("/mnt/fast/nobackup/scratch4weeks/hl01486/project/2021-ISMIR-MSS-Challenge-CWS-PResUNet/mss_challenge_log/2022-10-04-zehua-vocals/version_1/checkpoints/epoch=149-val_loss=0.3276.ckpt")
+    # model = model.load_from_checkpoint("/mnt/fast/nobackup/scratch4weeks/hl01486/project/2021-ISMIR-MSS-Challenge-CWS-PResUNet/mss_challenge_log/2022-10-04-zehua-vocals/version_1/checkpoints/epoch=199-val_loss=0.3287.ckpt")
+    # model = model.load_from_checkpoint("/mnt/fast/nobackup/scratch4weeks/hl01486/project/2021-ISMIR-MSS-Challenge-CWS-PResUNet/mss_challenge_log/2022-10-04-zehua-vocals/version_1/checkpoints/epoch=239-val_loss=0.3281.ckpt")
+    
     # Data Module1
     dm = MUSDB18HQDataModule(
         distributed=distributed, train_loader="INDIVIDUAL_LOADER",train_type=args.type, overlap_num=1,
@@ -120,6 +130,7 @@ if __name__ == "__main__":
                                              gpus = list(range(0,gpu_nums)) if(len(args.gpuids) ==0) else args.gpuids,
                                              max_epochs=1000,
                                              num_sanity_val_steps=2,
+                                             limit_train_batches=1,
                                              resume_from_checkpoint=args.reload if (len(args.reload) != 0) else None,
                                              callbacks=callbacks,
                                              accelerator=accelerator,

@@ -124,12 +124,6 @@ class UNetResComplex_100Mb(pl.LightningModule):
                                                  downsample=(2, 2), activation=activation, momentum=momentum)
         self.conv_block7 = EncoderBlockRes1(in_channels=384, out_channels=384,
                                            downsample=(1,1), activation=activation, momentum=momentum)
-        self.conv_block8 = EncoderBlockRes1(in_channels=384, out_channels=384,
-                                           downsample=(1,1), activation=activation, momentum=momentum)
-        self.conv_block9 = EncoderBlockRes1(in_channels=384, out_channels=384,
-                                           downsample=(1,1), activation=activation, momentum=momentum)
-        self.conv_block10 = EncoderBlockRes1(in_channels=384, out_channels=384,
-                                           downsample=(1,1), activation=activation, momentum=momentum)
         self.decoder_block1 = DecoderBlockRes1(in_channels=384, out_channels=384,
                                               stride=(2, 2), activation=activation, momentum=momentum)
         self.decoder_block2 = DecoderBlockRes1(in_channels=384, out_channels=384,
@@ -223,9 +217,6 @@ class UNetResComplex_100Mb(pl.LightningModule):
         (y5_pool, y5) = self.encoder_block5(y4_pool)  # y5_pool: (bs, 512, T / 32, F / 32)
         (y6_pool, y6) = self.encoder_block6(y5_pool)  # y6_pool: (bs, 1024, T / 64, F / 64)
         y_center,_ = self.conv_block7(y6_pool)  # (bs, 2048, T / 64, F / 64)
-        y_center,_ = self.conv_block8(y_center)  # (bs, 2048, T / 64, F / 64)
-        y_center,_ = self.conv_block9(y_center)  # (bs, 2048, T / 64, F / 64)
-        y_center,_ = self.conv_block10(y_center)  # (bs, 2048, T / 64, F / 64)
         y7 = self.decoder_block1(y_center, y6)  # (bs, 1024, T / 32, F / 32)
         y8 = self.decoder_block2(y7, y5)  # (bs, 512, T / 16, F / 16)
         y9 = self.decoder_block3(y8, y4)  # (bs, 256, T / 8, F / 8)
@@ -242,7 +233,7 @@ class UNetResComplex_100Mb(pl.LightningModule):
         return y, y+input
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, amsgrad=True)
+        optimizer = torch.optim.Adam(self.parameters(), lr=0.0001, amsgrad=True)
         # StepLR = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=self.gamma)
         scheduler = {
             'scheduler': torch.optim.lr_scheduler.LambdaLR(optimizer, self.lr_lambda),

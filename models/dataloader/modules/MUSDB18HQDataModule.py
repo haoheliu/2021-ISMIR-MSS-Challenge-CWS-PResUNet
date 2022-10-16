@@ -1,6 +1,7 @@
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
-from models.dataloader.loaders.individual_loader import INDIVIDUAL_LOADER
+from models.dataloader.loaders.individual_loader_train import INDIVIDUAL_LOADER_train
+from models.dataloader.loaders.individual_loader_test import INDIVIDUAL_LOADER_test
 from models.dataloader.loaders.all_loader import ALL_LOADER
 from models.dataloader.loaders.paried_loader import PairedFullLengthDataLoader
 from torch.utils.data.distributed import DistributedSampler
@@ -29,21 +30,12 @@ class MUSDB18HQDataModule(pl.LightningDataModule):
 
     def setup(self, stage = None):
         if(stage == 'fit' or stage is None):
-            self.train = eval(self.train_loader)(frame_length=self.frame_length,
-                                                   sample_rate=self.sample_rate,
-                                                    overlap_num = self.overlap_num,
-                                                   data=self.train_data,
-                                                    target = self.train_type
-                                                   )
+            self.train = INDIVIDUAL_LOADER_train()
 
-            self.val = PairedFullLengthDataLoader(dataset_name="musdb18hq",
-                                             sample_rate=self.sample_rate,
-                                             data=self.test_data)
+            self.val = INDIVIDUAL_LOADER_test()
 
-        if(stage == 'test' or stage is None):
-            self.test = PairedFullLengthDataLoader(dataset_name="musdb18hq",
-                                             sample_rate=self.sample_rate,
-                                             data=self.test_data)
+        if(stage == "test" or stage is None):
+            self.val = INDIVIDUAL_LOADER_test()
 
     def train_dataloader(self) -> DataLoader:
         if(self.distributed):
@@ -58,10 +50,3 @@ class MUSDB18HQDataModule(pl.LightningDataModule):
             return DataLoader(self.val, sampler = sampler, batch_size=1, pin_memory=False)
         else:
             return DataLoader(self.val, batch_size=1, shuffle=False)
-
-    def test_dataloader(self):
-        if(self.distributed):
-            sampler = DistributedSampler(self.test,shuffle=False)
-            return DataLoader(self.test, sampler = sampler, batch_size=1, pin_memory=False)
-        else:
-            return DataLoader(self.test, batch_size=1, shuffle=False)

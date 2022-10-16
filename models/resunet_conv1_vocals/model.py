@@ -287,7 +287,8 @@ class UNetResComplex_100Mb(pl.LightningModule):
             
         np.save(os.path.join(self.val_result_save_dir_step, "z_est"+str(fname)), tensor2numpy(z_est))
         np.save(os.path.join(self.val_result_save_dir_step, "y_est"+str(fname)), tensor2numpy(y_est))
-        loss = self.calc_loss(z_est, z)
+        # loss = self.calc_loss(z_est, z)
+        loss = torch.tensor([0.0]).to(x.device)
         return {'val_loss':loss}
 
     def validation_epoch_end(self, outputs):

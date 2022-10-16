@@ -91,7 +91,9 @@ if __name__ == "__main__":
                   warm_up_steps=int(warmup_data * 3600 / seconds_per_step), reduce_lr_steps=int(reduce_lr_period * 3600 / seconds_per_step),  # four gpus !!
                   # datas
                   check_val_every_n_epoch=check_val_every_n_epoch)
-
+    
+    model.load_from_checkpoint("/mnt/fast/nobackup/scratch4weeks/hl01486/project/2021-ISMIR-MSS-Challenge-CWS-PResUNet/mss_challenge_log/2022-09-25-zehua-vocals/version_1/checkpoints/epoch=289-val_loss=0.3347.ckpt")
+    # import ipdb; ipdb.set_trace()
     # Data Module1
     dm = MUSDB18HQDataModule(
         distributed=distributed, train_loader="INDIVIDUAL_LOADER",train_type=args.type, overlap_num=1,
@@ -117,6 +119,7 @@ if __name__ == "__main__":
 
     if(gpu_nums > 0):
         trainer = Trainer.from_argparse_args(args,
+                                             limit_train_batches=0,
                                              gpus = list(range(0,gpu_nums)) if(len(args.gpuids) ==0) else args.gpuids,
                                              max_epochs=1000,
                                              num_sanity_val_steps=2,
